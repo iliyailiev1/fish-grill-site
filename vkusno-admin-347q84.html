@@ -35,10 +35,10 @@
       <div class="mb-3">
         <label for="category" class="form-label">Категория</label>
         <select id="category" class="form-select" required>
-          <option value="starters">Закуски</option>
-          <option value="breakfast">Обедно меню</option>
-          <option value="lunch">Специалитети</option>
-          <option value="dinner">Скара</option>
+          <option value="zakuski">Закуски</option>
+          <option value="obedno-menu">Обедно меню</option>
+          <option value="specialiteti">Специалитети</option>
+          <option value="skara">Скара</option>
         </select>
       </div>
       <div class="mb-3 form-check">
@@ -54,6 +54,8 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    let editingItemId = null;
+
     const supabase = window.supabase.createClient(
       'https://huullvfombogfhmssqrc.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
@@ -91,7 +93,9 @@
                 <h5 class="card-title">${escapeHTML(item.name)}</h5>
                 <p class="card-text">${escapeHTML(item.ingredients)}</p>
                 <p class="card-text">${escapeHTML(item.weight)} гр.</p>
-                <p class="card-text fw-bold">${escapeHTML(item.price)} лв.</p>
+                <p class="card-text fw-bold">${escapeHTML(item.price.toFixed(2))} лв.</p>
+                <button class="btn btn-secondary btn-sm mt-2 me-2" onclick="editItem('${item.id}')">Редактирай</button>
+
                 <p class="text-muted">Категория: ${escapeHTML(item.category)}</p>
                 ${isHidden ? '<p class="text-danger"><strong>❌ Скрито от менюто</strong></p>' : ''}
                 ${isHidden
@@ -102,6 +106,35 @@
           </div>`;
       });
     }
+    async function editItem(id) {
+      const { data, error } = await supabase
+        .from('menu')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        alert('Грешка при зареждане на ястието.');
+        console.error(error);
+        return;
+      }
+
+  // Попълваме формата
+      document.getElementById('name').value = data.name;
+      document.getElementById('ingredients').value = data.ingredients;
+      document.getElementById('price').value = data.price.toFixed(2);
+      document.getElementById('weight').value = data.weight;
+      document.getElementById('category').value = data.category;
+      document.getElementById('is_new').checked = data.is_new;
+
+  // Запомняме ID-то за редакция
+      editingItemId = id;
+
+  // Променяме текста на бутона
+      document.querySelector('#menu-form button[type="submit"]').textContent = 'Запази промените';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
   
     async function hideItem(id) {
       const { error } = await supabase
@@ -130,55 +163,82 @@
     }
   
     document.getElementById('menu-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
+  e.preventDefault();
 
-      const name = document.getElementById('name').value;
-      const ingredients = document.getElementById('ingredients').value;
-      const price = parseFloat(document.getElementById('price').value);
-      const category = document.getElementById('category').value;
-      const weight = document.getElementById('weight').value;
-      const imageInput = document.getElementById('image_file');
-      const file = imageInput.files[0];
-      const is_new = document.getElementById('is_new').checked;
+  const name = document.getElementById('name').value;
+  const ingredients = document.getElementById('ingredients').value;
+  const price = parseFloat(document.getElementById('price').value);
+  const category = document.getElementById('category').value;
+  const weight = document.getElementById('weight').value;
+  const imageInput = document.getElementById('image_file');
+  const file = imageInput.files[0];
+  const is_new = document.getElementById('is_new').checked;
 
-      let image_url = '';
+  let image_url = '';
 
-      if (file) {
-        const filePath = `${Date.now()}_${file.name}`;
-        const { data: uploadData, error: uploadError } = await supabase
-          .storage
-          .from('menu-images')
-          .upload(filePath, file);
+  // Ако качваш нова снимка – качи я
+  if (file) {
+    const filePath = `${Date.now()}_${file.name}`;
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('menu-images')
+      .upload(filePath, file);
 
-        if (uploadError) {
-          console.error('Грешка при качване:', uploadError);
-          document.getElementById('status-message').innerHTML =
-            '<div class="alert alert-danger">❌ Грешка при качване на снимката!</div>';
-          return;
-        }
+    if (uploadError) {
+      console.error('Грешка при качване:', uploadError);
+      document.getElementById('status-message').innerHTML =
+        '<div class="alert alert-danger">❌ Грешка при качване на снимката!</div>';
+      return;
+    }
 
-        const { data: publicURLData } = supabase
-          .storage
-          .from('menu-images')
-          .getPublicUrl(filePath);
+    const { data: publicURLData } = supabase
+      .storage
+      .from('menu-images')
+      .getPublicUrl(filePath);
 
-        image_url = publicURLData.publicUrl;
-      }
+    image_url = publicURLData.publicUrl;
+  }
 
-      const { error } = await supabase.from('menu').insert([
-        { name, ingredients, price, category, weight, image_url, is_visible: true, is_new }
-      ]);
+  const status = document.getElementById('status-message');
 
-      const status = document.getElementById('status-message');
-      if (error) {
-        console.error('Грешка при добавяне:', error);
-        status.innerHTML = '<div class="alert alert-danger">❌ Грешка при добавяне!</div>';
-      } else {
-        status.innerHTML = '<div class="alert alert-success">✅ Успешно добавено!</div>';
-        this.reset();
-        fetchMenu();
-      }
-    });
+  if (editingItemId) {
+    // 🟠 АКТУАЛИЗИРАМЕ съществуващо ястие
+    const updateData = { name, ingredients, price, category, weight, is_new, is_visible: true};
+    if (image_url) updateData.image_url = image_url;
+
+    const { error } = await supabase
+      .from('menu')
+      .update(updateData)
+      .eq('id', editingItemId);
+
+    if (error) {
+      console.error('Грешка при редактиране:', error);
+      status.innerHTML = '<div class="alert alert-danger">❌ Грешка при редакция!</div>';
+    } else {
+      status.innerHTML = '<div class="alert alert-success">✅ Промените са запазени!</div>';
+      this.reset();
+      editingItemId = null;
+      this.querySelector('button[type="submit"]').textContent = 'Добави ястието';
+      fetchMenu();
+    }
+
+  } else {
+    // 🟢 ДОБАВЯМЕ ново ястие
+    const { error } = await supabase.from('menu').insert([
+      { name, ingredients, price, category, weight, image_url, is_visible: true, is_new }
+    ]);
+
+    if (error) {
+      console.error('Грешка при добавяне:', error);
+      status.innerHTML = '<div class="alert alert-danger">❌ Грешка при добавяне!</div>';
+    } else {
+      status.innerHTML = '<div class="alert alert-success">✅ Успешно добавено!</div>';
+      this.reset();
+      fetchMenu();
+    }
+  }
+});
+
 
   
     fetchMenu();
