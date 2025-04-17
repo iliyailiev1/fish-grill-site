@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="assets/img/logo.jpg" rel="logo">
   <title>Ресторан "Вкусно"</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -60,19 +61,19 @@
 
         <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
           <div class="tab-pane fade active show" id="menu-starters">
-            <div class="tab-header text-center"><p>Menu</p><h3>Starters</h3></div>
+            <div class="tab-header text-center"><p>Меню</p><h3>Закуски</h3></div>
             <div class="row gy-5" id="menu-starters-container"></div>
           </div>
           <div class="tab-pane fade" id="menu-breakfast">
-            <div class="tab-header text-center"><p>Menu</p><h3>Breakfast</h3></div>
+            <div class="tab-header text-center"><p>Меню</p><h3>Обедно меню</h3></div>
             <div class="row gy-5" id="menu-breakfast-container"></div>
           </div>
           <div class="tab-pane fade" id="menu-lunch">
-            <div class="tab-header text-center"><p>Menu</p><h3>Lunch</h3></div>
+            <div class="tab-header text-center"><p>Меню</p><h3>Специалитети</h3></div>
             <div class="row gy-5" id="menu-lunch-container"></div>
           </div>
           <div class="tab-pane fade" id="menu-dinner">
-            <div class="tab-header text-center"><p>Menu</p><h3>Dinner</h3></div>
+            <div class="tab-header text-center"><p>Меню</p><h3>Скара</h3></div>
             <div class="row gy-5" id="menu-dinner-container"></div>
           </div>
         </div>
@@ -166,7 +167,8 @@
           </a>
           <h4>${item.name}</h4>
           <p class="ingredients">${item.ingredients}</p>
-          <p class="price">$${item.price}</p>
+          <p class="card-text">${item.weight} гр.</p>
+          <p class="price">${item.price} лв.</p>
         </div>
       `;
     });
@@ -182,34 +184,6 @@
     loadMenuByCategory('lunch', 'menu-lunch-container');
     loadMenuByCategory('dinner', 'menu-dinner-container');
   });
-
-  
-  const form = document.getElementById('add-dish-form');
-  const messageBox = document.getElementById('form-message');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('dish-name').value.trim();
-    const price = parseFloat(document.getElementById('dish-price').value);
-    const ingredients = document.getElementById('dish-ingredients').value.trim();
-    const image_url = document.getElementById('dish-image').value.trim();
-    const category = document.getElementById('dish-category').value;
-
-    const { error } = await supabase.from('menu').insert([
-      { name, price, ingredients, image_url, category }
-    ]);
-
-    if (error) {
-      console.error('Грешка при добавяне:', error);
-      messageBox.innerHTML = `<div class="alert alert-danger">❌ Грешка при добавяне</div>`;
-    } else {
-      messageBox.innerHTML = `<div class="alert alert-success">✅ Ястието беше добавено успешно!</div>`;
-      form.reset();
-      loadMenuByCategory(category, `menu-${category}-container`);
-    }
-  });
-
 
 </script>
 

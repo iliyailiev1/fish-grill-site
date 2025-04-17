@@ -27,9 +27,15 @@
         <input type="number" step="0.01" class="form-control" id="price" required>
       </div>
       <div class="mb-3">
-        <label for="image_url" class="form-label">URL на снимката</label>
-        <input type="text" class="form-control" id="image_url">
+        <label for="weight" class="form-label">Грамаж</label>
+        <input type="text" class="form-control" id="weight">
       </div>
+      
+      <div class="mb-3">
+        <label for="image_file" class="form-label">Качи снимка</label>
+        <input type="file" class="form-control" id="image_file" accept="image/*" required>
+      </div>
+      
       <div class="mb-3">
         <label for="category" class="form-label">Категория</label>
         <select id="category" class="form-select" required>
@@ -48,61 +54,88 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabase = window.supabase.createClient(
-    'https://huullvfombogfhmssqrc.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
-  );
+  'https://huullvfombogfhmssqrc.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
+);
 
-    async function fetchMenu() {
-      const { data, error } = await supabase.from('menu').select('*');
-      const container = document.getElementById('menu-list');
-      container.innerHTML = '';
+async function fetchMenu() {
+  const { data, error } = await supabase.from('menu').select('*');
+  const container = document.getElementById('menu-list');
+  container.innerHTML = '';
 
-      if (error) {
-        console.error('Грешка при зареждане на менюто:', error);
-        return;
-      }
+  if (error) {
+    console.error('Грешка при зареждане на менюто:', error);
+    return;
+  }
 
-      data.forEach(item => {
-        container.innerHTML += `
-          <div class="col-md-4 mb-4">
-            <div class="card">
-              <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${item.name}">
-              <div class="card-body">
-                <h5 class="card-title">${item.name}</h5>
-                <p class="card-text">${item.ingredients}</p>
-                <p class="card-text fw-bold">${item.price} лв.</p>
-                <p class="text-muted">Категория: ${item.category}</p>
-              </div>
-            </div>
-          </div>`;
-      });
+  data.forEach(item => {
+    container.innerHTML += `
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${item.name}">
+          <div class="card-body">
+            <h5 class="card-title">${item.name}</h5>
+            <p class="card-text">${item.ingredients}</p>
+            <p class="card-text">${item.weight} гр.</p>
+            <p class="card-text fw-bold">${item.price} лв.</p>
+            <p class="text-muted">Категория: ${item.category}</p>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+document.getElementById('menu-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value;
+  const ingredients = document.getElementById('ingredients').value;
+  const price = parseFloat(document.getElementById('price').value);
+  const category = document.getElementById('category').value;
+  const weight = document.getElementById('weight').value;
+  const imageInput = document.getElementById('image_file');
+  const file = imageInput.files[0];
+
+  let image_url = '';
+
+  if (file) {
+    const filePath = `${Date.now()}_${file.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('menu-images')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Грешка при качване:', uploadError);
+      document.getElementById('status-message').innerHTML =
+        '<div class="alert alert-danger">❌ Грешка при качване на снимката!</div>';
+      return;
     }
 
-    document.getElementById('menu-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
+    const { data: publicURLData } = supabase
+      .storage
+      .from('menu-images')
+      .getPublicUrl(filePath);
 
-      const name = document.getElementById('name').value;
-      const ingredients = document.getElementById('ingredients').value;
-      const price = parseFloat(document.getElementById('price').value);
-      const image_url = document.getElementById('image_url').value || 'https://via.placeholder.com/300';
-      const category = document.getElementById('category').value;
+    image_url = publicURLData.publicUrl;
+  }
 
-      const { error } = await supabase.from('menu').insert([
-        { name, ingredients, price, image_url, category }
-      ]);
+  const { error } = await supabase.from('menu').insert([
+    { name, ingredients, price, category, weight, image_url }
+  ]);
 
-      const status = document.getElementById('status-message');
-      if (error) {
-        console.error('Грешка при добавяне:', error);
-        status.innerHTML = '<div class="alert alert-danger">❌ Грешка при добавяне!</div>';
-      } else {
-        status.innerHTML = '<div class="alert alert-success">✅ Успешно добавено!</div>';
-        this.reset();
-        fetchMenu();
-      }
-    });
-
+  const status = document.getElementById('status-message');
+  if (error) {
+    console.error('Грешка при добавяне:', error);
+    status.innerHTML = '<div class="alert alert-danger">❌ Грешка при добавяне!</div>';
+  } else {
+    status.innerHTML = '<div class="alert alert-success">✅ Успешно добавено!</div>';
+    this.reset();
     fetchMenu();
+  }
+});
+
+fetchMenu();
+
   </script>
 </body>
 
