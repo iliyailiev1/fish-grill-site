@@ -41,26 +41,29 @@
 
   <main class="main">
     <section id="menu" class="menu section">
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Добре дошли!</h2>
-        <p><span>Разгледайте</span> <span class="description-title">Нашето Меню</span></p>
+      <div class="hero-background">
+        <div class="container section-title text-center text-white" data-aos="fade-up">
+          <h2>Добре дошли!</h2>
+          <p><span>Разгледайте</span> <span class="description-title">Нашето Меню</span></p>
+        </div>
+    
+        <div class="container">
+          <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="100">
+            <li class="nav-item">
+              <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#menu-starters">Закуски</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-breakfast">Обедно меню</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-lunch">Основно меню</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-dinner">Скара</a>
+            </li>
+          </ul>
+        </div>
       </div>
-
-      <div class="container">
-        <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="100">
-          <li class="nav-item">
-            <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#menu-starters">Закуски</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-breakfast">Обедно меню</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-lunch">Основно меню</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-dinner">Скара</a>
-          </li>
-        </ul>
         
 
         <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
@@ -83,7 +86,7 @@
               
               <h3>Основно меню</h3>
             </div>
-            <div class="d-flex justify-content-center mb-4 gap-2 flex-wrap">
+            <div class="subcat d-flex justify-content-center mb-4 gap-2 flex-wrap">
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('salati', this)">Салати</button>
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('ribni', this)">Рибни ястия</button>
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('supi', this)">Супи</button>
