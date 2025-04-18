@@ -29,14 +29,15 @@
 
 <body class="index-page">
 
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container position-relative d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
+  <header id="header" class="header sticky-top">
+    <div class="container d-flex align-items-center justify-content-center">
+      <a href="index.html" class="logo d-flex align-items-center mx-auto">
         <span class="mini_text">Ресторант</span>
         <span class="text_logo">"Вкусно"</span>
       </a>
     </div>
   </header>
+  
 
   <main class="main">
     <section id="menu" class="menu section">
@@ -59,7 +60,7 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-lunch">
-              <h4>Специалитети</h4>
+              <h4>Основно меню</h4>
             </a>
           </li>
           <li class="nav-item">
@@ -87,7 +88,13 @@
           <div class="tab-pane fade" id="menu-lunch">
             <div class="tab-header text-center">
               <p>Меню</p>
-              <h3>Специалитети</h3>
+              <h3>Основно меню</h3>
+            </div>
+            <div class="d-flex justify-content-center mb-4 gap-2 flex-wrap">
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('salati', this)">Салати</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('ribni', this)">Рибни ястия</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('supi', this)">Супи</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('osnovni', this)">Основни ястия</button>
             </div>
             <div class="row gy-5" id="menu-lunch-container" style="justify-content: center !important;"></div>
           </div>
@@ -132,11 +139,9 @@
         </div>
         <div class="col-lg-3 col-md-6">
           <h4>Follow Us</h4>
-          <div class="social-links d-flex">
-            <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>
-            <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-            <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+          <div class="social-links d-flex">   
+            <a href="https://www.facebook.com/profile.php?id=100064099363090#" class="facebook"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com/restaurant_vkusno/" class="instagram"><i class="bi bi-instagram"></i></a>
           </div>
         </div>
       </div>
@@ -161,32 +166,73 @@
 
   <!-- Твоят JS код -->
   <script>
-    // Създаване на Supabase клиента
-
     const supabase = window.supabase.createClient(
       'https://huullvfombogfhmssqrc.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
     );
+  
+    async function loadSubcategory(subcategory, buttonElement = null) {
+  const { data, error } = await supabase
+    .from('menu')
+    .select('*')
+    .eq('category', 'specialiteti')
+    .eq('subcategory', subcategory)
+    .eq('is_visible', true);
 
+  const container = document.getElementById('menu-lunch-container');
+  container.innerHTML = '';
+
+  if (error) {
+    console.error('Грешка при зареждане на подкатегорията:', error);
+    return;
+  }
+
+  // 👉 активиране на бутона
+  document.querySelectorAll('.subcategory-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  if (buttonElement) {
+    buttonElement.classList.add('active');
+  }
+
+  data.sort((a, b) => b.is_new - a.is_new);
+  data.forEach(item => {
+    container.innerHTML += `
+      <div class="col-lg-4 menu-item position-relative">
+        ${item.is_new ? `
+          <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
+            style="z-index: 2; margin-top: -20px; margin-left: -10px;">
+            НОВО!</div>` : ''}
+        <a href="${item.image_url}" class="glightbox">
+          <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
+        </a>
+        <h4>${item.name}</h4>
+        <p class="ingredients">${item.ingredients}</p>
+        <p class="card-text">${item.weight} гр.</p>
+        <p class="price">${item.price.toFixed(2)} лв.</p>
+      </div>
+    `;
+  });
+}
+
+  
     async function loadMenuByCategory(category, containerId) {
       const { data, error } = await supabase
         .from('menu')
         .select('*')
         .eq('category', category)
         .eq('is_visible', true);
-
-
+  
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+  
       if (error) {
         console.error(`Грешка при зареждане на ${category}:`, error);
         return;
       }
-
-      const container = document.getElementById(containerId);
-      console.log('Контейнер:', container);
-      console.log('Получени данни:', data);
-      container.innerHTML = '';
+  
       data.sort((a, b) => b.is_new - a.is_new);
-
+  
       data.forEach(item => {
         container.innerHTML += `
           <div class="col-lg-4 menu-item position-relative">
@@ -204,18 +250,28 @@
           </div>
         `;
       });
-
-
     }
-
-    // Когато страницата е готова – зареждаме ястията
+  
     window.addEventListener('DOMContentLoaded', () => {
       loadMenuByCategory('zakuski', 'menu-starters-container');
       loadMenuByCategory('obedno-menu', 'menu-breakfast-container');
-      loadMenuByCategory('specialiteti', 'menu-lunch-container');
       loadMenuByCategory('skara', 'menu-dinner-container');
-    });
+      const lunchTab = document.querySelector('a[data-bs-target="#menu-lunch"]');
+      lunchTab.addEventListener('click', () => {
+    // Ако вече има ястия заредени, не презареждай
+        const container = document.getElementById('menu-lunch-container');
 
+// Намери бутона за Салати
+        const salatiBtn = document.querySelector('button[onclick*="salati"]');
+
+// Зареждай Салати, само ако контейнерът е празен
+        if (!container.hasChildNodes()) {
+          loadSubcategory('salati', salatiBtn); // подаваме и бутона, за да го активира
+        }
+      });
+  });
+    
+    
   </script>
 
   <!-- Всичко останало (main.js и т.н.) - най-накрая -->
