@@ -49,45 +49,38 @@
       <div class="container">
         <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="100">
           <li class="nav-item">
-            <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#menu-starters">
-              <h4>Закуски</h4>
-            </a>
+            <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#menu-starters">Закуски</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-breakfast">
-              <h4>Обедно меню</h4>
-            </a>
+            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-breakfast">Обедно меню</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-lunch">
-              <h4>Основно меню</h4>
-            </a>
+            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-lunch">Основно меню</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-dinner">
-              <h4>Скара</h4>
-            </a>
+            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-dinner">Скара</a>
           </li>
         </ul>
+        
 
         <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
           <div class="tab-pane fade active show" id="menu-starters">
             <div class="tab-header text-center">
-              <p>Меню</p>
+              
               <h3>Закуски</h3>
             </div>
             <div class="row gy-5" id="menu-starters-container" style="justify-content: center !important;"></div>
           </div>
           <div class="tab-pane fade" id="menu-breakfast">
             <div class="tab-header text-center">
-              <p>Меню</p>
+              
               <h3>Обедно меню</h3>
             </div>
             <div class="row gy-5" id="menu-breakfast-container" style="justify-content: center !important;"></div>
           </div>
           <div class="tab-pane fade" id="menu-lunch">
             <div class="tab-header text-center">
-              <p>Меню</p>
+              
               <h3>Основно меню</h3>
             </div>
             <div class="d-flex justify-content-center mb-4 gap-2 flex-wrap">
@@ -100,7 +93,7 @@
           </div>
           <div class="tab-pane fade" id="menu-dinner">
             <div class="tab-header text-center">
-              <p>Меню</p>
+              
               <h3>Скара</h3>
             </div>
             <div class="row gy-5" id="menu-dinner-container" style="justify-content: center !important;"></div>
@@ -172,12 +165,12 @@
     );
   
     async function loadSubcategory(subcategory, buttonElement = null) {
-  const { data, error } = await supabase
-    .from('menu')
-    .select('*')
-    .eq('category', 'specialiteti')
-    .eq('subcategory', subcategory)
-    .eq('is_visible', true);
+      const { data, error } = await supabase
+        .from('menu')
+        .select('*')
+        .eq('category', 'specialiteti')
+        .eq('subcategory', subcategory)
+        .eq('is_visible', true);
 
   const container = document.getElementById('menu-lunch-container');
   container.innerHTML = '';
@@ -186,6 +179,15 @@
     console.error('Грешка при зареждане на подкатегорията:', error);
     return;
   }
+  document.addEventListener('DOMContentLoaded', () => {
+    // Принудително активиране на Bootstrap таба, за да може да се подаде правилно стил
+    const firstTab = document.querySelector('a[data-bs-target="#menu-starters"]');
+
+    if (firstTab) {
+      const bsTab = new bootstrap.Tab(firstTab);
+      bsTab.show(); // показва го и тригерва активния клас
+    }
+  });
 
   // 👉 активиране на бутона
   document.querySelectorAll('.subcategory-btn').forEach(btn => {

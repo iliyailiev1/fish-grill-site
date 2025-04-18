@@ -123,6 +123,55 @@ a {
   margin-right: 10px !important;
 }
 
+.menu .nav-tabs {
+  border-bottom: none;
+}
+.menu .nav-tabs {
+  flex-wrap: wrap;
+  row-gap: 12px;
+  column-gap: 12px;
+  justify-content: center;
+}
+
+.menu .nav-link {
+  background-color: #f9f9f9;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  margin: 0 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  font-size: 16px;
+}
+
+.menu .nav-tabs .nav-link h4 {
+  transition: transform 0.2s ease, font-size 0.2s ease;
+  margin-bottom: 0;
+}
+
+.menu .nav-tabs .nav-link.active h4 {
+  transform: scale(1.1); /* zoom, не 10.1 :) */
+  font-weight: 700;
+}
+
+.menu .nav-link:hover {
+  background-color: #ffffff;
+  color: var(--accent-color);
+  border-radius: 12px;
+}
+
+.menu .nav-link.active {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  transform: scale(1.05);
+  border-radius: 12px;
+}
+
+
+
 a:hover {
   color: color-mix(in srgb, var(--accent-color), transparent 25%);
   text-decoration: none;
