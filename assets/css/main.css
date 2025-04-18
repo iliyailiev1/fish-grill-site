@@ -71,6 +71,9 @@ a {
   text-decoration: none;
   transition: 0.3s;
 }
+.tab-content {
+  padding-bottom: 40px; /* или 20px, според желанието ти */
+}
 
 .mini_text{
   font-size: 20px !important;
