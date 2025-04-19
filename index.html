@@ -213,9 +213,10 @@
           <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
             style="z-index: 2; margin-top: -20px; margin-left: -10px;">
             НОВО!</div>` : ''}
-        <a href="${item.image_url}" class="glightbox">
+        <div>
           <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
-        </a>
+        </div>
+
         <h4>${item.name}</h4>
         <p class="ingredients">${item.ingredients}</p>
         <p class="card-text">${item.weight} гр.</p>
@@ -250,9 +251,10 @@
               <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
                 style="z-index: 2; margin-top: -20px; margin-left: -10px;">
                 НОВО!</div>` : ''}
-            <a href="${item.image_url}" class="glightbox">
+            <div>
               <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
-            </a>
+            </div>
+
             <h4>${item.name}</h4>
             <p class="ingredients">${item.ingredients}</p>
             <p class="card-text">${item.weight} гр.</p>
@@ -280,14 +282,9 @@
         }
       });
   });
-    
-    
   </script>
-
   <!-- Всичко останало (main.js и т.н.) - най-накрая -->
   <script src="assets/js/main.js"></script>
-
-
 </body>
 
 </html>
