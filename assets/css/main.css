@@ -103,13 +103,15 @@ a {
 .show-map-btn {
   position: absolute;
   bottom: 30px;
-  right: 30px;
-  padding: 16px 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 12px 24px;
   background-color: #d63333;
   color: white;
   border: 2px solid #b52c2c;
   border-radius: 14px;
-  font-size: 8px;
+  font-size: 13px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -119,11 +121,13 @@ a {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+
 .show-map-btn:hover {
   background-color: #b52c2c;
   border-color: #a11e1e;
-  transform: scale(1.05);
+  transform: translateX(-50%) scale(1.05);
 }
+
 
 
 .popup-overlay {
