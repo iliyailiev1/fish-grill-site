@@ -22,6 +22,7 @@
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <link href="assets/css/main.css" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/arturo-trial" rel="stylesheet">
@@ -37,6 +38,7 @@
       </a>
     </div>
   </header>
+
   
 
   <main class="main">
@@ -48,6 +50,14 @@
           <h2>Добре дошли!</h2>
           <p><span>Разгледайте</span> <span class="description-title">Нашето Меню</span></p>
         </div>
+        <button class="show-map-btn">За Локация<br>Натиснете тук</button>
+        <div id="map-popup" class="popup-overlay">
+          <div class="popup-content">
+            <span class="close-btn">&times;</span>
+            <div id="map" class="map"></div>
+          </div>
+        </div>
+        
       </div>
       
         <!-- Визуално разделение -->
@@ -160,130 +170,178 @@
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-
-  <!-- Supabase JS SDK -->
-  <!-- Supabase JS SDK - винаги ПЪРВО -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Твоят JS код -->
   <script>
-    const supabase = window.supabase.createClient(
-      'https://huullvfombogfhmssqrc.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
-    );
+    document.addEventListener('DOMContentLoaded', async function () {
+      const btn = document.querySelector('.show-map-btn');
+      const popup = document.getElementById('map-popup');
+      const closeBtn = popup?.querySelector('.close-btn');
+      let mapInitialized = false;
+      let map;
   
-    async function loadSubcategory(subcategory, buttonElement = null) {
-      const { data, error } = await supabase
-        .from('menu')
-        .select('*')
-        .eq('category', 'specialiteti')
-        .eq('subcategory', subcategory)
-        .eq('is_visible', true);
-
-  const container = document.getElementById('menu-lunch-container');
-  container.innerHTML = '';
-
-  if (error) {
-    console.error('Грешка при зареждане на подкатегорията:', error);
-    return;
-  }
-  document.addEventListener('DOMContentLoaded', () => {
-    // Принудително активиране на Bootstrap таба, за да може да се подаде правилно стил
-    const firstTab = document.querySelector('a[data-bs-target="#menu-starters"]');
-
-    if (firstTab) {
-      const bsTab = new bootstrap.Tab(firstTab);
-      bsTab.show(); // показва го и тригерва активния клас
-    }
-  });
-
-  // 👉 активиране на бутона
-  document.querySelectorAll('.subcategory-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  if (buttonElement) {
-    buttonElement.classList.add('active');
-  }
-
-  data.sort((a, b) => b.is_new - a.is_new);
-  data.forEach(item => {
-    container.innerHTML += `
-      <div class="col-lg-4 menu-item position-relative">
-        ${item.is_new ? `
-          <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
-            style="z-index: 2; margin-top: -20px; margin-left: -10px;">
-            НОВО!</div>` : ''}
-        <div>
-          <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
-        </div>
-
-        <h4>${item.name}</h4>
-        <p class="ingredients">${item.ingredients}</p>
-        <p class="card-text">${item.weight} гр.</p>
-        <p class="price">${item.price.toFixed(2)} лв.</p>
-      </div>
-    `;
-  });
-}
-
+      // 👉 Карта
+      if (btn && popup && closeBtn) {
+        btn.addEventListener('click', () => {
+          popup.classList.add('active');
   
-    async function loadMenuByCategory(category, containerId) {
-      const { data, error } = await supabase
-        .from('menu')
-        .select('*')
-        .eq('category', category)
-        .eq('is_visible', true);
+          if (!mapInitialized) {
+            setTimeout(() => {
+              map = L.map('map').setView([43.148037, 24.722846], 16);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+              }).addTo(map);
   
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
+              L.marker([43.148037, 24.722846]).addTo(map)
+                .bindPopup('<b>Fish & Grill</b><br>Източна промишлена зона, Ловеч')
+                .openPopup();
   
-      if (error) {
-        console.error(`Грешка при зареждане на ${category}:`, error);
+              mapInitialized = true;
+            }, 100);
+          } else {
+            setTimeout(() => map.invalidateSize(), 200);
+          }
+        });
+  
+        closeBtn.addEventListener('click', () => {
+          popup.classList.remove('active');
+        });
+  
+        popup.addEventListener('click', (e) => {
+          if (e.target === popup) {
+            popup.classList.remove('active');
+          }
+        });
+      }
+  
+      // 👉 Supabase
+      const supabase = window.supabase?.createClient
+        ? window.supabase.createClient(
+            'https://huullvfombogfhmssqrc.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
+          )
+        : null;
+  
+      if (!supabase) {
+        console.error('Supabase клиентът не е наличен');
         return;
       }
   
-      data.sort((a, b) => b.is_new - a.is_new);
+      // 👉 Зареждане на категории
+      async function loadMenuByCategory(category, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
   
-      data.forEach(item => {
-        container.innerHTML += `
-          <div class="col-lg-4 menu-item position-relative">
-            ${item.is_new ? `
-              <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
-                style="z-index: 2; margin-top: -20px; margin-left: -10px;">
-                НОВО!</div>` : ''}
-            <div>
-              <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
-            </div>
-
-            <h4>${item.name}</h4>
-            <p class="ingredients">${item.ingredients}</p>
-            <p class="card-text">${item.weight} гр.</p>
-            <p class="price">${item.price.toFixed(2)} лв.</p>
-          </div>
-        `;
-      });
-    }
+        const { data, error } = await supabase
+          .from('menu')
+          .select('*')
+          .eq('category', category)
+          .eq('is_visible', true);
   
-    window.addEventListener('DOMContentLoaded', () => {
-      loadMenuByCategory('zakuski', 'menu-starters-container');
-      loadMenuByCategory('obedno-menu', 'menu-breakfast-container');
-      loadMenuByCategory('skara', 'menu-dinner-container');
-      const lunchTab = document.querySelector('a[data-bs-target="#menu-lunch"]');
-      lunchTab.addEventListener('click', () => {
-    // Ако вече има ястия заредени, не презареждай
-        const container = document.getElementById('menu-lunch-container');
-
-// Намери бутона за Салати
-        const salatiBtn = document.querySelector('button[onclick*="salati"]');
-
-// Зареждай Салати, само ако контейнерът е празен
-        if (!container.hasChildNodes()) {
-          loadSubcategory('salati', salatiBtn); // подаваме и бутона, за да го активира
+        container.innerHTML = '';
+  
+        if (error) {
+          console.error(`Грешка при зареждане на ${category}:`, error);
+          return;
         }
-      });
-  });
+  
+        data.sort((a, b) => b.is_new - a.is_new);
+  
+        data.forEach(item => {
+          container.innerHTML += `
+            <div class="col-lg-4 menu-item position-relative">
+              ${item.is_new ? `
+                <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
+                  style="z-index: 2; margin-top: -20px; margin-left: -10px;">
+                  НОВО!</div>` : ''}
+              <div>
+                <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
+              </div>
+              <h4>${item.name}</h4>
+              <p class="ingredients">${item.ingredients}</p>
+              <p class="card-text">${item.weight} гр.</p>
+              <p class="price">${item.price.toFixed(2)} лв.</p>
+            </div>
+          `;
+        });
+      }
+  
+      // 👉 Зареждане на подкатегория
+      // 👉 Зареждане на подкатегория
+      async function loadSubcategory(subcategory, buttonElement = null) {
+        const container = document.getElementById('menu-lunch-container');
+        if (!container) return;
+      
+        const { data, error } = await supabase
+          .from('menu')
+          .select('*')
+          .eq('category', 'specialiteti')
+          .eq('subcategory', subcategory)
+          .eq('is_visible', true);
+      
+        if (error) {
+          console.error('Грешка при зареждане на подкатегорията:', error);
+          return;
+        }
+
+       //Активен стил за избрания бутон
+        document.querySelectorAll('.subcategory-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        if (buttonElement) {
+          buttonElement.classList.add('active');
+        }
+
+        container.innerHTML = '';
+
+        data.sort((a, b) => b.is_new - a.is_new);
+
+        data.forEach(item => {
+          container.innerHTML += `
+            <div class="col-lg-4 menu-item position-relative">
+              ${item.is_new ? `
+                <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
+                  style="z-index: 2; margin-top: -20px; margin-left: -10px;">
+                  НОВО!
+                </div>` : ''}
+              <div>
+                <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
+              </div>
+              <h4>${item.name}</h4>
+              <p class="ingredients">${item.ingredients}</p>
+              <p class="card-text">${item.weight} гр.</p>
+              <p class="price">${item.price.toFixed(2)} лв.</p>
+            </div>
+          `;
+        });
+      }
+      window.loadSubcategory = loadSubcategory;
+
+  
+      // 👉 Зареди категориите (само ако има елементи на страницата)
+      await loadMenuByCategory('zakuski', 'menu-starters-container');
+      await loadMenuByCategory('obedno-menu', 'menu-breakfast-container');
+      await loadMenuByCategory('skara', 'menu-dinner-container');
+  
+      const salatiBtn = document.querySelector('button[onclick*="salati"]');
+      if (salatiBtn) {
+        await loadSubcategory('salati', salatiBtn);
+      }
+  
+      const lunchTab = document.querySelector('a[data-bs-target="#menu-lunch"]');
+      if (lunchTab) {
+        lunchTab.addEventListener('click', async () => {
+          const container = document.getElementById('menu-lunch-container');
+          if (container && !container.hasChildNodes()) {
+            if (salatiBtn) {
+              await loadSubcategory('salati', salatiBtn);
+            }
+          }
+        });
+      }
+    });
   </script>
-  <!-- Всичко останало (main.js и т.н.) - най-накрая -->
+  
   <script src="assets/js/main.js"></script>
 </body>
 

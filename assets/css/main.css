@@ -74,63 +74,6 @@ a {
 .tab-content {
   padding-bottom: 40px; /* или 20px, според желанието ти */
 }
-.popup-lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(240, 240, 240, 0.95); /* светлосив фон с прозрачност */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  transition: 0.3s ease;
-}
-
-.popup-content {
-  position: relative;
-  max-width: 90%;
-  max-height: 90%;
-  background-color: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-}
-
-.popup-content img {
-  max-width: 100%;
-  max-height: 80vh;
-  border-radius: 8px;
-}
-
-.close-btn {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background-color: #ce1212;
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  width: 32px;
-  height: 32px;
-  line-height: 28px;
-  text-align: center;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 6px rgba(0,0,0,0.2);
-  z-index: 10;
-  transition: 0.2s ease;
-}
-
-.close-btn:hover {
-  background-color: #a00;
-}
-
-.d-none {
-  display: none !important;
-}
-
 
 .mini_text{
   font-size: 20px !important;
@@ -156,6 +99,98 @@ a {
   overflow: hidden;
   font-weight: 900px !important;
 }
+
+.show-map-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  padding: 16px 28px;
+  background-color: #d63333;
+  color: white;
+  border: 2px solid #b52c2c;
+  border-radius: 14px;
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s, border-color 0.3s, transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.show-map-btn:hover {
+  background-color: #b52c2c;
+  border-color: #a11e1e;
+  transform: scale(1.05);
+}
+
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup-overlay.active {
+  display: flex;
+}
+
+.popup-content {
+  position: relative;
+  background-color: white;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  width: 80%;
+  max-width: 600px;
+  height: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  background: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 1001;
+  transition: background-color 0.3s;
+}
+
+.close-btn:hover {
+  background-color: #eee;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
 .subcat .btn:hover{
   background-color: #ce1212;
   color: white;
