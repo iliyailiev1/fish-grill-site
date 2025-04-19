@@ -121,6 +121,11 @@ a {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+.subcategory-btn.active {
+  background-color: #ce1212 !important; /* Червено */
+  color: white !important;
+  border-color: #ce1212 !important;
+}
 
 .show-map-btn:hover {
   background-color: #b52c2c;
