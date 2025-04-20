@@ -296,6 +296,16 @@ a {
   margin-bottom: 30px;
   border-radius: 0 0 30px 30px;
 }
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  font-weight: 600;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
 
 /* 🔧 Добавен box-shadow и запазено заобляне */
 .hero-image-wrapper {
