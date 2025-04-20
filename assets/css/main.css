@@ -12,7 +12,7 @@
 --------------------------------------------------------------*/
 /* Fonts */
 :root {
-  --default-font: "Roboto",  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --default-font: "Poppins", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --heading-font: "Amatic SC",  sans-serif;
   --nav-font: "Inter",  sans-serif;
 }
@@ -63,7 +63,18 @@
 body {
   color: var(--default-color);
   background-color: var(--background-color);
-  font-family: var(--default-font);
+  font-family: var(--default-font) !important;
+}
+.menu-item h4,
+.menu-item .ingredients,
+.menu-item .card-text {
+  font-family: 'Poppins', sans-serif;
+}
+
+button.active {
+  background-color: #dc3545;
+  color: white;
+  font-weight: bold;
 }
 
 a {
@@ -944,6 +955,21 @@ section,
 .contact .php-email-form button[type=submit]:hover {
   background: color-mix(in srgb, var(--accent-color), transparent 20%);
 }
+/* Активна подкатегория (Супи, Салати и т.н.) */
+.subcategory-btn.active,
+.drink-type-btn.active {
+  background-color: var(--accent-color); /* Червено */
+  color: white;
+  border-color: var(--accent-color);
+  transform: scale(1.05);
+  font-weight: bold;
+  box-shadow: 0 6px 18px rgba(206, 18, 18, 0.25);
+}
+.subcategory-btn:hover,
+.drink-type-btn:hover {
+  transform: scale(1.05);
+}
+
 
 /*--------------------------------------------------------------
 # Starter Section Section

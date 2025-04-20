@@ -23,6 +23,7 @@
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link href="assets/css/main.css" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/arturo-trial" rel="stylesheet">
@@ -147,8 +148,19 @@
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('skara', this)">Скара</button>
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('deserti', this)">Десерти</button>
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('pite', this)">Хляб</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('napitki', this)">Напитки</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('napitki', this, null, true)">Напитки</button>
+
+
             </div>
+            
+            <!-- 💡 Вече извън .subcat -->
+            <div id="drink-type-filter" class="justify-content-center mb-4 gap-2 flex-wrap" style="display: none;">
+              <button class="btn btn-outline-danger drink-type-btn" data-drink-type="bezalkoholna" onclick="loadSubcategory('napitki', this, 'bezalkoholna')">🥤 Безалкохолни</button>
+              <button class="btn btn-outline-danger drink-type-btn" data-drink-type="alkoholna" onclick="loadSubcategory('napitki', this, 'alkoholna')">🍷 Алкохолни</button>
+              <button class="btn btn-outline-danger drink-type-btn" data-drink-type="topla" onclick="loadSubcategory('napitki', this, 'topla')">☕ Топли</button>
+              
+            </div>
+            
             <div class="row gy-5" id="menu-lunch-container" style="justify-content: center !important;"></div>
           </div>
         </div>
@@ -206,6 +218,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
+      // Скрий бутоните за напитки при първоначално зареждане
+      document.getElementById('drink-type-filter').style.display = 'none';
+
+
       const btn = document.querySelector('.show-map-btn');
       const popup = document.getElementById('map-popup');
       const closeBtn = popup?.querySelector('.close-btn');
@@ -273,6 +289,14 @@
               <h4>${item.name}</h4>
               ${item.category === 'specialiteti' && item.subcategory === 'napitki' ? `
                 <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
+                <p class="card-text fst-italic text-muted">
+                  ${
+                    item.drink_type === 'alkoholna' ? '🍷 Алкохолна напитка' :
+                    item.drink_type === 'bezalkoholna' ? '🥤 Безалкохолна напитка' :
+                    item.drink_type === 'topla' ? '☕ Топла напитка' : ''
+                  }
+                </p>
+
 
               ` : `
                 <p class="ingredients">${item.ingredients || ''}</p>
@@ -285,47 +309,94 @@
       }
   
       // Зареждане на подкатегория
-      async function loadSubcategory(subcategory, buttonElement = null) {
+      async function loadSubcategory(subcategory, buttonElement = null, drinkTypeFilter = null, userClicked = false) {
+        // Изчисти предишно активните бутони
+        document.querySelectorAll('.subcategory-btn, .drink-type-btn').forEach(btn => btn.classList.remove('active'));
+        if (buttonElement) {
+          buttonElement.classList.add('active');
+        }
+
+        if (drinkTypeFilter) {
+          document.querySelectorAll('.drink-type-btn').forEach(btn => {
+            const btnType = btn.getAttribute('data-drink-type');
+            if (btnType === drinkTypeFilter) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          });
+        }
+
+
+
+
         const container = document.getElementById('menu-lunch-container');
+        const drinkFilterUI = document.getElementById('drink-type-filter');
+
         if (!container) return;
-  
-        const { data, error } = await supabase
+
+        // 🔥 Показвай бутоните за напитки само ако избрано е "напитки"
+        if (subcategory === 'napitki') {
+          drinkFilterUI.style.display = 'flex';
+          drinkFilterUI.classList.add('d-flex');
+
+          // 👉 Ако няма избран drink type, зареждаме първия - "безалкохолна"
+          if (!drinkTypeFilter) {
+            const defaultDrinkBtn = document.querySelector('.drink-type-btn[onclick*="bezalkoholna"]');
+            if (defaultDrinkBtn) {
+              await loadSubcategory('napitki', defaultDrinkBtn, 'bezalkoholna', true);
+              return; // Спираме, защото вече сме презаредили
+            }
+          }
+
+        } else {
+          drinkFilterUI.style.display = 'none';
+          drinkFilterUI.classList.remove('d-flex');
+        }
+
+
+
+        let query = supabase
           .from('menu')
           .select('*')
           .eq('category', 'specialiteti')
           .eq('subcategory', subcategory)
           .eq('is_visible', true);
-  
+
+        if (subcategory === 'napitki' && drinkTypeFilter) {
+          query = query.eq('drink_type', drinkTypeFilter);
+        }
+
+        const { data, error } = await query;
+
         container.innerHTML = '';
-  
+
         if (error) {
           console.error('Грешка при зареждане на подкатегорията:', error);
           return;
         }
-  
-        document.querySelectorAll('.subcategory-btn').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        if (buttonElement) {
-          buttonElement.classList.add('active');
-        }
-  
+
         data.sort((a, b) => b.is_new - a.is_new);
-  
+
         data.forEach(item => {
           container.innerHTML += `
             <div class="col-lg-4 menu-item position-relative">
               ${item.is_new ? `
                 <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
-                  style="z-index: 2; margin-top: -20px; margin-left: -10px;">
-                  НОВО!</div>` : ''}
+                  style="z-index: 2; margin-top: -20px; margin-left: -10px;">НОВО!</div>` : ''}
               <div>
                 <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
               </div>
               <h4>${item.name}</h4>
               ${subcategory === 'napitki' ? `
                 <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
-
+                <p class="card-text fst-italic text-muted">
+                  ${
+                    item.drink_type === 'alkoholna' ? '🍷 Алкохолна напитка' :
+                    item.drink_type === 'bezalkoholna' ? '🥤 Безалкохолна напитка' :
+                    item.drink_type === 'topla' ? '☕ Топла напитка' : ''
+                  }
+                </p>
               ` : `
                 <p class="ingredients">${item.ingredients || ''}</p>
                 <p class="card-text">${item.weight || ''} гр.</p>
@@ -335,6 +406,9 @@
           `;
         });
       }
+
+
+
       function getVolumeUnit(item) {
         return item.volume_unit || 'мл.'; 
       }
@@ -346,10 +420,11 @@
       await loadMenuByCategory('zakuski', 'menu-starters-container');
       await loadMenuByCategory('obedno-menu', 'menu-breakfast-container');
   
-      const salatiBtn = document.querySelector('button[onclick*="salati"]');
-      if (salatiBtn) {
-        await loadSubcategory('salati', salatiBtn);
+      const supiBtn = document.querySelector('button[onclick*="supi"]');
+      if (supiBtn) {
+        await loadSubcategory('supi', supiBtn, null, true);
       }
+
   
       const lunchTab = document.querySelector('a[data-bs-target="#menu-lunch"]');
       if (lunchTab) {

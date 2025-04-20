@@ -71,6 +71,20 @@
           <option value="napitki">Напитки</option>  
         </select>
       </div>
+      <div class="mb-3" id="drink-type-container" style="display: none;">
+        <label for="drink_type" class="form-label">Тип напитка</label>
+        <select id="drink_type" class="form-select">
+          <option value="">-- Избери тип --</option>
+          <option value="alkoholna">Алкохолна</option>
+          <option value="bezalkoholna">Безалкохолна</option>
+          <option value="topla">Топли напитки</option>
+
+
+        </select>
+      </div>
+      
+      
+      
       <div class="mb-3 form-check">
         <input type="checkbox" class="form-check-input" id="is_new">
         <label class="form-check-label" for="is_new">Ново предложение</label>
@@ -116,19 +130,21 @@
         const subcat = document.getElementById('subcategory').value;
         const isNapitki = subcat === 'napitki';
 
-
         document.getElementById('volume-container').style.display = isNapitki ? 'block' : 'none';
         document.getElementById('volume-unit-toggle-container').style.display = isNapitki ? 'block' : 'none';
+        document.getElementById('drink-type-container').style.display = isNapitki ? 'block' : 'none';
+
         document.getElementById('ingredients').parentElement.style.display = isNapitki ? 'none' : '';
         document.getElementById('weight').parentElement.style.display = isNapitki ? 'none' : '';
 
-        // По подразбиране литри
         if (!isNapitki) {
           document.getElementById('volume').value = '';
           document.getElementById('volume-unit-toggle').checked = true;
           updateVolumeUnitLabel();
+          document.getElementById('drink_type').value = '';
         }
       }
+
 
 
     
@@ -140,7 +156,14 @@
             <div class="card-body">
               <h5 class="card-title">${item.name}</h5>
               ${item.subcategory === 'napitki'
-                ? `<p class="card-text fw-bold">${item.volume || ''} ${item.volume_unit || ''}</p>`
+              ? `
+                <p class="card-text fw-bold">${item.volume || ''} ${item.volume_unit || ''}</p>
+                <p class="card-text text-muted fst-italic">
+                  ${item.drink_type === 'alkoholna' ? '🍷 Алкохолна напитка' 
+                    : item.drink_type === 'bezalkoholna' ? '🥤 Безалкохолна напитка'
+                    : '☕ Топла напитка'}
+                </p>
+              `
                 : `
                   <p class="card-text">${item.ingredients || ''}</p>
                   <p class="card-text">${item.weight || ''} гр.</p>
@@ -167,7 +190,7 @@
         const category = document.getElementById('category').value;
         const subcategory = document.getElementById('subcategory').value || null;
         const isNapitki = category === 'specialiteti' && subcategory === 'napitki';
-
+        
         const weight = isNapitki ? null : document.getElementById('weight').value;
         const volume = isNapitki ? document.getElementById('volume').value : null;
         const volume_unit = isNapitki ? (document.getElementById('volume-unit-toggle').checked ? 'л.' : 'мл.') : null;
@@ -177,10 +200,8 @@
            return alert('Моля, избери подкатегория.');
          }
        
-         // 🔴 3. Проверка: ако е напитка, обемът е задължителен
-         if (isNapitki && (!volume || volume === '')) {
-           return alert('Моля, въведи обем на напитката.');
-         }
+
+
         let image_url = '';
         if (file) {
           const filePath = `${Date.now()}_${file.name}`;
@@ -190,18 +211,28 @@
           image_url = urlData.publicUrl;
         }
     
+        const drink_type = isNapitki ? document.getElementById('drink_type').value : null;
+         // 🔴 3. Проверка: ако е напитка, обемът е задължителен
+         if (isNapitki && (!volume || volume === '')) {
+           return alert('Моля, въведи обем на напитката.');
+         }
+         if (isNapitki && (!drink_type || drink_type === '')) {
+          return alert('Моля, избери тип напитка.');
+        }
         const dishData = {
           name,
           ingredients: isNapitki ? null : ingredients,
           weight,
           volume,
           volume_unit,
+          drink_type, // 👈 добави това тук
           price,
           category,
           subcategory,
           is_new,
           is_visible: true,
         };
+
     
         if (image_url) dishData.image_url = image_url;
     
@@ -233,9 +264,16 @@
       });
     
       window.editItem = async function (id) {
+        
         const { data, error } = await supabase.from('menu').select('*').eq('id', id).single();
         if (error) return alert('Грешка при зареждане на ястието.');
-    
+        if (data.subcategory === 'napitki') {
+          document.getElementById('volume').value = data.volume || '';
+          document.getElementById('volume-unit-toggle').checked = data.volume_unit === 'л.';
+          updateVolumeUnitLabel();
+          document.getElementById('drink_type').value = data.drink_type || '';
+        }
+
         editingItemId = id;
         document.getElementById('name').value = data.name;
         document.getElementById('ingredients').value = data.ingredients || '';
@@ -243,7 +281,8 @@
         document.getElementById('weight').value = data.weight || '';
         document.getElementById('category').value = data.category;
         document.getElementById('is_new').checked = data.is_new;
-    
+        document.getElementById('drink_type').value = data.drink_type || '';
+
         document.getElementById('category').dispatchEvent(new Event('change'));
         if (data.category === 'specialiteti') {
           document.getElementById('subcategory').value = data.subcategory || '';
