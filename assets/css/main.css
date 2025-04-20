@@ -305,6 +305,17 @@ a {
 .btn-success:hover {
   background-color: #218838;
 }
+/* По подразбиране скрито */
+.call-button-mobile {
+  display: none;
+}
+
+/* Само на устройства с max-width до 768px (мобилни) */
+@media (max-width: 768px) {
+  .call-button-mobile {
+    display: block;
+  }
+}
 
 
 /* 🔧 Добавен box-shadow и запазено заобляне */
