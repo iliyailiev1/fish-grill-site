@@ -28,26 +28,47 @@
         <label for="weight" class="form-label">Грамаж</label>
         <input type="text" class="form-control" id="weight">
       </div>
+      <div class="mb-3" id="volume-container" style="display: none;">
+        <label for="volume" class="form-label">Обем</label>
+        <div class="input-group">
+          <input type="number" step="0.01" class="form-control" id="volume" placeholder="напр. 0.5">
+          <span class="input-group-text" id="volume-unit">л.</span>
+        </div>
+      </div>
+      
+      
+      <div class="mb-3" id="volume-unit-toggle-container" style="display: none;">
+        <label class="form-label">Избор на мерна единица</label><br>
+        <input type="checkbox" id="volume-unit-toggle" class="form-check-input">
+        <label for="volume-unit-toggle" class="form-check-label">л. / мл.</label>
+      </div>
+      
       <div class="mb-3">
         <label for="image_file" class="form-label">Качи снимка</label>
         <input type="file" class="form-control" id="image_file" accept="image/*" required>
       </div>
       <div class="mb-3">
-        <label for="category" class="form-label">Категория</label>
+        <label for="category" class="form-label">Основна Категория</label>
         <select id="category" class="form-select" required>
+          <option value="">-- Избери категория --</option>
           <option value="zakuski">Закуски</option>
           <option value="obedno-menu">Обедно меню</option>
           <option value="specialiteti">Основно меню</option>
-          <option value="skara">Скара</option>
         </select>
       </div>
       <div class="mb-3" id="subcategory-container" style="display: none;">
         <label for="subcategory" class="form-label">Подкатегория</label>
         <select id="subcategory" class="form-select">
-          <option value="salati">Салати</option>
-          <option value="ribni">Рибни ястия</option>
+          <option value="">-- Избери подкатегория --</option>
           <option value="supi">Супи</option>
+          <option value="salati">Салати</option>
+          <option value="predqstiq">Предястия</option>
           <option value="osnovni">Основни ястия</option>
+          <option value="ribni">Рибни ястия</option>
+          <option value="skara">Скара</option>
+          <option value="deserti">Десерти</option>
+          <option value="pite">Хляб</option>  
+          <option value="napitki">Напитки</option>  
         </select>
       </div>
       <div class="mb-3 form-check">
@@ -60,138 +81,211 @@
     <div id="status-message" class="mb-4"></div>
     <div class="row" id="menu-list"></div>
   </div>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = window.supabase.createClient(
-      'https://huullvfombogfhmssqrc.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
-    );
-  
-    let editingItemId = null;
-  
-    function escapeHTML(str) {
-      return str?.toString().replace(/[&<>"]/g, match => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-      })[match]);
-    }
-  
-    function renderCard(item) {
-      const isHidden = item.is_visible === false;
-      return `
-        <div class="card position-relative h-100">
-          ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">НОВО!</div>' : ''}
-          <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${escapeHTML(item.name)}">
-          <div class="card-body">
-            <h5 class="card-title">${escapeHTML(item.name)}</h5>
-            <p class="card-text">${escapeHTML(item.ingredients)}</p>
-            <p class="card-text">${escapeHTML(item.weight)} гр.</p>
-            <p class="card-text fw-bold">${escapeHTML(item.price.toFixed(2))} лв.</p>
-            <p class="text-muted">Категория: ${escapeHTML(item.category)}</p>
-            ${item.subcategory ? `<p class="text-muted">Подкатегория: ${escapeHTML(item.subcategory)}</p>` : ''}
-            <button class="btn btn-secondary btn-sm mt-2 me-2" onclick="editItem('${item.id}')">Редактирай</button>
-            ${isHidden ? '<p class="text-danger"><strong>❌ Скрито от менюто</strong></p>' : ''}
-            ${isHidden
-              ? `<button class="btn btn-success btn-sm mt-2" onclick="toggleVisibility('${item.id}', true)">Покажи отново</button>`
-              : `<button class="btn btn-outline-danger btn-sm mt-2" onclick="toggleVisibility('${item.id}', false)">Скрий от менюто</button>`}
-          </div>
-        </div>`;
-    }
-  
-    async function fetchMenu() {
-      const { data, error } = await supabase.from('menu').select('*');
-      const container = document.getElementById('menu-list');
-      container.innerHTML = '';
-      if (error) {
-        console.error('Грешка при зареждане:', error);
-        return;
+  <!-- Вмъкни това в твоя HTML файл, заменяйки съществуващия <script> -->
+    <script>
+      const supabase = window.supabase.createClient(
+        'https://huullvfombogfhmssqrc.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
+      );
+    
+      let editingItemId = null;
+    
+      function getVolumeUnitText() {
+        return document.getElementById('volume-unit-toggle').checked ? 'л.' : 'мл.';
       }
-      data.sort((a, b) => b.is_new - a.is_new);
-      data.forEach(item => {
-        const cardWrapper = document.createElement('div');
-        cardWrapper.className = 'col-md-4 mb-4';
-        cardWrapper.id = `card-${item.id}`;
-        cardWrapper.innerHTML = renderCard(item);
-        container.appendChild(cardWrapper);
+    
+      function updateVolumeUnitLabel() {
+        document.getElementById('volume-unit').textContent = getVolumeUnitText();
+      }
+    
+      document.getElementById('volume-unit-toggle').checked = true;
+      updateVolumeUnitLabel();
+    
+      document.getElementById('category').addEventListener('change', function () {
+        const isSpecialiteti = this.value === 'specialiteti';
+        document.getElementById('subcategory-container').style.display = isSpecialiteti ? 'block' : 'none';
+        if (!isSpecialiteti) document.getElementById('subcategory').value = '';
       });
-    }
-  
-    async function toggleVisibility(id, show) {
-      await supabase.from('menu').update({ is_visible: show }).eq('id', id);
-      const { data, error } = await supabase.from('menu').select('*').eq('id', id).single();
-      if (!error && data) {
-        const card = document.getElementById(`card-${id}`);
-        if (card) {
-          card.innerHTML = renderCard(data);
+    
+      document.getElementById('subcategory').addEventListener('change', handleSubcategoryChange);
+      document.getElementById('volume-unit-toggle').addEventListener('change', updateVolumeUnitLabel);
+    
+      function handleSubcategoryChange() {
+        const subcat = document.getElementById('subcategory').value;
+        const isNapitki = subcat === 'napitki';
+
+
+        document.getElementById('volume-container').style.display = isNapitki ? 'block' : 'none';
+        document.getElementById('volume-unit-toggle-container').style.display = isNapitki ? 'block' : 'none';
+        document.getElementById('ingredients').parentElement.style.display = isNapitki ? 'none' : '';
+        document.getElementById('weight').parentElement.style.display = isNapitki ? 'none' : '';
+
+        // По подразбиране литри
+        if (!isNapitki) {
+          document.getElementById('volume').value = '';
+          document.getElementById('volume-unit-toggle').checked = true;
+          updateVolumeUnitLabel();
         }
       }
-    }
-  
-    window.editItem = async function (id) {
-      const { data, error } = await supabase.from('menu').select('*').eq('id', id).single();
-      if (error) return alert('Грешка при зареждане на ястието.');
-  
-      editingItemId = id;
-      document.getElementById('name').value = data.name;
-      document.getElementById('ingredients').value = data.ingredients;
-      document.getElementById('price').value = data.price.toFixed(2);
-      document.getElementById('weight').value = data.weight;
-      document.getElementById('category').value = data.category;
-      document.getElementById('is_new').checked = data.is_new;
-      if (data.category === 'specialiteti') {
-        document.getElementById('subcategory-container').style.display = 'block';
-        document.getElementById('subcategory').value = data.subcategory || '';
+
+
+    
+      function renderCard(item) {
+        return `
+          <div class="card position-relative h-100">
+            ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">НОВО!</div>' : ''}
+            <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${item.name}">
+            <div class="card-body">
+              <h5 class="card-title">${item.name}</h5>
+              ${item.subcategory === 'napitki'
+                ? `<p class="card-text fw-bold">${item.volume || ''} ${item.volume_unit || ''}</p>`
+                : `
+                  <p class="card-text">${item.ingredients || ''}</p>
+                  <p class="card-text">${item.weight || ''} гр.</p>
+                `}
+              <p class="card-text fw-bold">${item.price.toFixed(2)} лв.</p>
+              <p class="text-muted">Категория: ${item.category}</p>
+              ${item.subcategory ? `<p class="text-muted">Подкатегория: ${item.subcategory}</p>` : ''}
+              <button class="btn btn-secondary btn-sm mt-2 me-2" onclick="editItem('${item.id}')">Редактирай</button>
+              ${item.is_visible === false
+                ? `<p class="text-danger"><strong>❌ Скрито</strong></p>
+                   <button class="btn btn-success btn-sm mt-2" onclick="toggleVisibility('${item.id}', true)">Покажи отново</button>`
+                : `<button class="btn btn-outline-danger btn-sm mt-2" onclick="toggleVisibility('${item.id}', false)">Скрий</button>`}
+            </div>
+          </div>
+        `;
       }
-      document.querySelector('#menu-form button[type="submit"]').textContent = 'Запази промените';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-  
-    document.getElementById('menu-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-  
-      const name = document.getElementById('name').value;
-      const ingredients = document.getElementById('ingredients').value;
-      const price = parseFloat(document.getElementById('price').value);
-      const category = document.getElementById('category').value;
-      const subcategory = category === 'specialiteti' ? document.getElementById('subcategory').value : null;
-      const weight = document.getElementById('weight').value;
-      const is_new = document.getElementById('is_new').checked;
-      const file = document.getElementById('image_file').files[0];
-  
-      let image_url = '';
-      if (file) {
-        const filePath = `${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage.from('menu-images').upload(filePath, file);
-        if (uploadError) return alert('Грешка при качване.');
-        const { data: urlData } = supabase.storage.from('menu-images').getPublicUrl(filePath);
-        image_url = urlData.publicUrl;
-      }
-  
-      const dishData = { name, ingredients, price, weight, category, subcategory, is_new, is_visible: true };
-      if (image_url) dishData.image_url = image_url;
-  
-      const status = document.getElementById('status-message');
-  
-      if (editingItemId) {
-        const { error } = await supabase.from('menu').update(dishData).eq('id', editingItemId);
-        if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при редакция</div>');
-        status.innerHTML = '<div class="alert alert-success">✅ Промените са запазени!</div>';
+    
+      document.getElementById('menu-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+    
+        const name = document.getElementById('name').value;
+        const ingredients = document.getElementById('ingredients').value;
+        const price = parseFloat(document.getElementById('price').value);
+        const category = document.getElementById('category').value;
+        const subcategory = document.getElementById('subcategory').value || null;
+        const isNapitki = category === 'specialiteti' && subcategory === 'napitki';
+
+        const weight = isNapitki ? null : document.getElementById('weight').value;
+        const volume = isNapitki ? document.getElementById('volume').value : null;
+        const volume_unit = isNapitki ? (document.getElementById('volume-unit-toggle').checked ? 'л.' : 'мл.') : null;
+        const is_new = document.getElementById('is_new').checked;
+        const file = document.getElementById('image_file').files[0];
+        if (category === 'specialiteti' && (!subcategory || subcategory === '')) {
+           return alert('Моля, избери подкатегория.');
+         }
+       
+         // 🔴 3. Проверка: ако е напитка, обемът е задължителен
+         if (isNapitki && (!volume || volume === '')) {
+           return alert('Моля, въведи обем на напитката.');
+         }
+        let image_url = '';
+        if (file) {
+          const filePath = `${Date.now()}_${file.name}`;
+          const { error: uploadError } = await supabase.storage.from('menu-images').upload(filePath, file);
+          if (uploadError) return alert('Грешка при качване: ' + uploadError.message);
+          const { data: urlData } = supabase.storage.from('menu-images').getPublicUrl(filePath);
+          image_url = urlData.publicUrl;
+        }
+    
+        const dishData = {
+          name,
+          ingredients: isNapitki ? null : ingredients,
+          weight,
+          volume,
+          volume_unit,
+          price,
+          category,
+          subcategory,
+          is_new,
+          is_visible: true,
+        };
+    
+        if (image_url) dishData.image_url = image_url;
+    
+        const status = document.getElementById('status-message');
+    
+        if (editingItemId) {
+          const { error } = await supabase.from('menu').update(dishData).eq('id', editingItemId);
+          if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при редакция</div>');
+          status.innerHTML = '<div class="alert alert-success">✅ Промените са запазени!</div>';
+        } else {
+          const { error } = await supabase.from('menu').insert([dishData]);
+          if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при добавяне</div>');
+          status.innerHTML = '<div class="alert alert-success">✅ Добавено успешно!</div>';
+        }
+    
         this.reset();
         editingItemId = null;
+        document.getElementById('subcategory-container').style.display = 'none';
+        document.getElementById('volume-container').style.display = 'none';
+        document.getElementById('volume-unit-toggle-container').style.display = 'none';
+        // Показваме обратно съставки и грамаж
+        document.getElementById('ingredients').parentElement.style.display = '';
+        document.getElementById('weight').parentElement.style.display = '';
+        document.getElementById('volume-unit-toggle').checked = true;
+        updateVolumeUnitLabel();
+        document.querySelector('#menu-form button[type="submit"]').textContent = 'Добави ястието';
         fetchMenu();
-      } else {
-        const { error } = await supabase.from('menu').insert([dishData]);
-        if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при добавяне</div>');
-        status.innerHTML = '<div class="alert alert-success">✅ Добавено успешно!</div>';
-        this.reset();
+
+      });
+    
+      window.editItem = async function (id) {
+        const { data, error } = await supabase.from('menu').select('*').eq('id', id).single();
+        if (error) return alert('Грешка при зареждане на ястието.');
+    
+        editingItemId = id;
+        document.getElementById('name').value = data.name;
+        document.getElementById('ingredients').value = data.ingredients || '';
+        document.getElementById('price').value = data.price.toFixed(2);
+        document.getElementById('weight').value = data.weight || '';
+        document.getElementById('category').value = data.category;
+        document.getElementById('is_new').checked = data.is_new;
+    
+        document.getElementById('category').dispatchEvent(new Event('change'));
+        if (data.category === 'specialiteti') {
+          document.getElementById('subcategory').value = data.subcategory || '';
+          document.getElementById('subcategory').dispatchEvent(new Event('change'));
+        }
+    
+        if (data.subcategory === 'napitki') {
+          document.getElementById('volume').value = data.volume || '';
+          document.getElementById('volume-unit-toggle').checked = data.volume_unit === 'л.';
+          updateVolumeUnitLabel();
+        }
+    
+        document.querySelector('#menu-form button[type="submit"]').textContent = 'Запази промените';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+    
+      async function toggleVisibility(id, show) {
+        await supabase.from('menu').update({ is_visible: show }).eq('id', id);
         fetchMenu();
       }
-  
-      document.querySelector('#menu-form button[type="submit"]').textContent = 'Добави ястието';
-    });
-  
-    fetchMenu();
-  </script>
+    
+      async function fetchMenu() {
+        const { data, error } = await supabase.from('menu').select('*');
+        const container = document.getElementById('menu-list');
+        container.innerHTML = '';
+        if (error) return console.error('Грешка при зареждане:', error);
+        data.sort((a, b) => b.is_new - a.is_new);
+        data.forEach(item => {
+          const cardWrapper = document.createElement('div');
+          cardWrapper.className = 'col-md-4 mb-4';
+          cardWrapper.id = `card-${item.id}`;
+          cardWrapper.innerHTML = renderCard(item);
+          container.appendChild(cardWrapper);
+        });
+      }
+    
+      fetchMenu();
+    </script>
+    
+    
+    
+
   
 </body>
 </html>

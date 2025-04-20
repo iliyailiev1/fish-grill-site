@@ -66,11 +66,6 @@
               src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCL8euJb3WKap5Lkh-PciyIDYX3NeHJehQ&q=Ресторант+%22Вкусно%22+Ловеч">
             </iframe>
           
-          
-          
-          
-            
-        
             <!-- Бутон за навигация -->
             <div class="text-center mt-2 mb-3">
               <a href="https://www.google.com/maps/dir/?api=1&destination=43.148037,24.722846" class="btn btn-danger" target="_blank">Навигирай до нас</a>
@@ -86,8 +81,35 @@
         <!-- Визуално разделение -->
         
         <h2 class="menu-text">Меню</h2>
-        <div class="container">
-          
+        <div class="container mt-5 mb-5">
+          <h2 class="text-center mb-4 text-danger fw-bold">🔥 ПРОМОЦИЯ! 🔥</h2>
+          <div class="row justify-content-center">
+            <div class="col-md-6">
+              <div class="card shadow-lg border border-warning" style="background-color: #fff8e1;">
+                <div class="card-body text-center py-4">
+                  <h4 class="card-title fw-bold mb-4">
+                    📢 <span class="text-dark">ПРОМОЦИЯ ОТ</span>
+                    <span class="text-danger fw-bold" style="font-size: 1.8rem; text-decoration: underline; padding: 2px 8px; border-radius: 4px;">
+                      ОБЕДНО МЕНЮ
+                    </span> 📢
+                  </h4>
+                  <p class="card-text fs-5 mb-2">🍲 <strong>Супа:</strong> 300гр</p>
+                  <p class="card-text fs-5 mb-2">🍽 <strong>Основно:</strong> 350гр</p>
+                  <p class="card-text fs-5 mb-2">🍰 <strong>Десерт:</strong> 200гр</p>
+                  <p class="card-text fs-5 mb-3">🍞 <strong>Хляб:</strong> 2 филии</p>
+                  <hr class="my-4">
+                  <p class="card-text display-5 text-success fw-bold mb-3">💸 8.50 лв.</p>
+                  <p class="card-text text-muted fst-italic">ℹ️ Ястията са по избор на клиента.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div class="container">   
           <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="100">
             <li class="nav-item">
               <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#menu-starters">Закуски</a>
@@ -98,9 +120,6 @@
             <li class="nav-item">
               <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-lunch">Основно меню</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-dinner">Скара</a>
-            </li>
           </ul>
         </div>
       
@@ -109,37 +128,34 @@
         <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
           <div class="tab-pane fade active show" id="menu-starters">
             <div class="tab-header text-center">
-              
               <h3>Закуски</h3>
             </div>
             <div class="row gy-5" id="menu-starters-container" style="justify-content: center !important;"></div>
           </div>
+        
           <div class="tab-pane fade" id="menu-breakfast">
             <div class="tab-header text-center">
-              
               <h3>Обедно меню</h3>
             </div>
             <div class="row gy-5" id="menu-breakfast-container" style="justify-content: center !important;"></div>
           </div>
+        
           <div class="tab-pane fade" id="menu-lunch">
             <div class="tab-header text-center">
-              
               <h3>Основно меню</h3>
             </div>
             <div class="subcat d-flex justify-content-center mb-4 gap-2 flex-wrap">
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('salati', this)">Салати</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('ribni', this)">Рибни ястия</button>
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('supi', this)">Супи</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('salati', this)">Салати</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('predqstiq', this)">Предястия</button>
               <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('osnovni', this)">Основни ястия</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('ribni', this)">Рибни ястия</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('skara', this)">Скара</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('deserti', this)">Десерти</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('pite', this)">Хляб</button>
+              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('napitki', this)">Напитки</button>
             </div>
             <div class="row gy-5" id="menu-lunch-container" style="justify-content: center !important;"></div>
-          </div>
-          <div class="tab-pane fade" id="menu-dinner">
-            <div class="tab-header text-center">
-              
-              <h3>Скара</h3>
-            </div>
-            <div class="row gy-5" id="menu-dinner-container" style="justify-content: center !important;"></div>
           </div>
         </div>
       </div>
@@ -262,8 +278,13 @@
                 <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
               </div>
               <h4>${item.name}</h4>
-              <p class="ingredients">${item.ingredients}</p>
-              <p class="card-text">${item.weight} гр.</p>
+              ${item.category === 'specialiteti' && item.subcategory === 'napitki' ? `
+                <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
+
+              ` : `
+                <p class="ingredients">${item.ingredients || ''}</p>
+                <p class="card-text">${item.weight || ''} гр.</p>
+              `}
               <p class="price">${item.price.toFixed(2)} лв.</p>
             </div>
           `;
@@ -309,20 +330,28 @@
                 <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
               </div>
               <h4>${item.name}</h4>
-              <p class="ingredients">${item.ingredients}</p>
-              <p class="card-text">${item.weight} гр.</p>
+              ${subcategory === 'napitki' ? `
+                <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
+
+              ` : `
+                <p class="ingredients">${item.ingredients || ''}</p>
+                <p class="card-text">${item.weight || ''} гр.</p>
+              `}
               <p class="price">${item.price.toFixed(2)} лв.</p>
             </div>
           `;
         });
       }
-  
+      function getVolumeUnit(item) {
+        return item.volume_unit || 'мл.'; 
+      }
+
+
       window.loadSubcategory = loadSubcategory;
   
       // Зареждане на категории
       await loadMenuByCategory('zakuski', 'menu-starters-container');
       await loadMenuByCategory('obedno-menu', 'menu-breakfast-container');
-      await loadMenuByCategory('skara', 'menu-dinner-container');
   
       const salatiBtn = document.querySelector('button[onclick*="salati"]');
       if (salatiBtn) {
