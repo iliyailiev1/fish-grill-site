@@ -266,7 +266,9 @@
           .from('menu')
           .select('*')
           .eq('category', category)
-          .eq('is_visible', true);
+          .eq('is_visible', true)
+          .order('sort_order', { ascending: true }); // ← добави това
+
   
           container.innerHTML = '';
           if (data.length === 0) {
@@ -280,7 +282,12 @@
           return;
         }
   
-        data.sort((a, b) => b.is_new - a.is_new);
+        data.sort((a, b) => {
+          if (a.is_new && !b.is_new) return -1;
+          if (!a.is_new && b.is_new) return 1;
+          return a.sort_order - b.sort_order;
+        });
+
   
         data.forEach(item => {
           container.innerHTML += `
@@ -367,7 +374,9 @@
           .select('*')
           .eq('category', 'specialiteti')
           .eq('subcategory', subcategory)
-          .eq('is_visible', true);
+          .eq('is_visible', true)
+          .order('sort_order', { ascending: true }); // ← добави това
+
 
         if (subcategory === 'napitki' && drinkTypeFilter) {
           query = query.eq('drink_type', drinkTypeFilter);
@@ -387,7 +396,12 @@
           return;
         }
 
-        data.sort((a, b) => b.is_new - a.is_new);
+        //data.sort((a, b) => {
+        //  if (a.is_new && !b.is_new) return -1;
+        //  if (!a.is_new && b.is_new) return 1;
+        //  return a.sort_order - b.sort_order;
+        //});
+
 
         data.forEach(item => {
           container.innerHTML += `

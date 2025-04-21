@@ -91,10 +91,43 @@
       </div>
       <button type="submit" class="btn btn-primary">Добави ястието</button>
     </form>
+    <div class="mb-4">
+      <input type="text" id="search-input" class="form-control" placeholder="🔍 Търси ястие по име...">
+    </div>
+    <div class="mb-3">
+      <div class="btn-group flex-wrap" id="filter-buttons">
+        <button class="btn btn-outline-secondary btn-sm" onclick="filterCards('')">Покажи всички</button>
+    
+        <!-- Закуски -->
+        <button class="btn btn-outline-primary btn-sm" onclick="filterCards('zakuski')">Закуски</button>
+    
+        <!-- Обедно меню -->
+        <button class="btn btn-outline-primary btn-sm" onclick="filterCards('obedno-menu')">Обедно меню</button>
+    
+        <!-- Основно меню (specialiteti) с подсекции -->
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('supi')">Супи</button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('salati')">Салати</button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('predqstiq')">Предястия</button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('osnovni')">Основни ястия</button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('ribni')">Рибни ястия</button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('deserti')">Десерти</button>
+        <button class="btn btn-outline-success btn-sm" onclick="filterCards('pite')">Хляб</button>
+    
 
+        <button class="btn btn-outline-info btn-sm" onclick="filterCards('napitki')">Напитки</button>
+        <button class="btn btn-outline-info btn-sm" onclick="filterCards('bezalkoholna')">Безалкохолни</button>
+        <button class="btn btn-outline-info btn-sm" onclick="filterCards('alkoholna')">Алкохолни</button>
+        <button class="btn btn-outline-info btn-sm" onclick="filterCards('topla')">Топли напитки</button>
+
+      </div>
+    </div>
     <div id="status-message" class="mb-4"></div>
     <div class="row" id="menu-list"></div>
+    
   </div>
+
+  
+  
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Вмъкни това в твоя HTML файл, заменяйки съществуващия <script> -->
@@ -105,6 +138,8 @@
       );
     
       let editingItemId = null;
+      let currentFilter = '';
+
     
       function getVolumeUnitText() {
         return document.getElementById('volume-unit-toggle').checked ? 'л.' : 'мл.';
@@ -145,12 +180,51 @@
         }
       }
 
+      function filterCards(filter) {
+        currentFilter = filter; // 🟢 Запомняме избрания филтър
+
+         // 🔁 Обнови стила на активния бутон
+        const allButtons = document.querySelectorAll('#filter-buttons button');
+        allButtons.forEach(btn => btn.classList.remove('active'));
+        const activeBtn = Array.from(allButtons).find(btn =>
+          btn.textContent.toLowerCase().includes(filter.toLowerCase()) || filter === ''
+        );
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // 👇 Филтриране както досега
+        const cards = document.querySelectorAll('#menu-list .card');
+        const filterLower = filter.toLowerCase();
+
+        cards.forEach(card => {
+          const name = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+          const subcat = card.getAttribute('data-subcat')?.toLowerCase() || '';
+          const category = card.getAttribute('data-category')?.toLowerCase() || '';
+          const drinkType = card.getAttribute('data-drink-type')?.toLowerCase() || '';
+
+          const matches =
+            filterLower === '' ||
+            name.includes(filterLower) ||
+            subcat.includes(filterLower) ||
+            category.includes(filterLower) ||
+            drinkType === filterLower;
+
+          card.parentElement.style.display = matches ? 'block' : 'none';
+        });
+
+        document.getElementById('menu-list').scrollIntoView({ behavior: 'smooth' });
+      }
+
+
+
+
+
 
 
     
       function renderCard(item) {
         return `
-          <div class="card position-relative h-100">
+          <div class="card position-relative h-100" data-subcat="${item.subcategory || ''}" data-category="${item.category}" data-drink-type="${item.drink_type || ''}">
+
             ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">НОВО!</div>' : ''}
             <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${item.name}">
             <div class="card-body">
@@ -175,11 +249,53 @@
               ${item.is_visible === false
                 ? `<p class="text-danger"><strong>❌ Скрито</strong></p>
                    <button class="btn btn-success btn-sm mt-2" onclick="toggleVisibility('${item.id}', true)">Покажи отново</button>`
-                : `<button class="btn btn-outline-danger btn-sm mt-2" onclick="toggleVisibility('${item.id}', false)">Скрий</button>`}
+                : `<button class="btn btn-outline-danger btn-sm mt-2 me-2" onclick="toggleVisibility('${item.id}', false)">Скрий</button>`
+              }
+              <button class="btn btn-sm btn-outline-secondary mt-2 me-2" onclick="moveUp('${item.id}')">⬆️</button>
+              <button class="btn btn-sm btn-outline-secondary mt-2" onclick="moveDown('${item.id}')">⬇️</button>
+
             </div>
           </div>
         `;
       }
+      async function moveUp(id) {
+        await moveItem(id, -1);
+      }
+
+      async function moveDown(id) {
+        await moveItem(id, 1);
+      }
+
+      async function moveItem(id, direction) {
+        const { data: currentItem, error } = await supabase.from('menu').select('*').eq('id', id).single();
+        if (error) return console.error('Грешка:', error);
+
+        const { category, subcategory, drink_type, sort_order } = currentItem;
+
+        let query = supabase.from('menu').select('*')
+          .eq('category', category)
+          .eq('subcategory', subcategory);
+
+        if (subcategory === 'napitki' && drink_type)
+          query = query.eq('drink_type', drink_type);
+
+        const { data: items } = await query.order('sort_order', { ascending: true });
+
+        const index = items.findIndex(item => item.id === id);
+        const swapIndex = index + direction;
+
+        if (swapIndex < 0 || swapIndex >= items.length) return;
+
+        const otherItem = items[swapIndex];
+
+        await supabase.from('menu').update({ sort_order: otherItem.sort_order }).eq('id', currentItem.id);
+        await supabase.from('menu').update({ sort_order: currentItem.sort_order }).eq('id', otherItem.id);
+
+        await fetchMenu();
+        filterCards(currentFilter); // 🟢 възстанови филтъра след местене
+
+      }
+
     
       document.getElementById('menu-form').addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -199,7 +315,26 @@
         if (category === 'specialiteti' && (!subcategory || subcategory === '')) {
            return alert('Моля, избери подкатегория.');
          }
-       
+        const drink_type = isNapitki ? document.getElementById('drink_type').value : null;
+        let sort_order = 1;
+
+        let query = supabase
+          .from('menu')
+          .select('sort_order')
+          .eq('category', category)
+          .eq('subcategory', subcategory);
+
+        if (subcategory === 'napitki' && drink_type) {
+          query = query.eq('drink_type', drink_type);
+        }
+
+        const { data: existingData, error: existingError } = await query;
+
+        if (!existingError && existingData.length > 0) {
+          const maxOrder = Math.max(...existingData.map(item => item.sort_order || 0));
+          sort_order = maxOrder + 1;
+        }
+
 
 
         let image_url = '';
@@ -211,7 +346,7 @@
           image_url = urlData.publicUrl;
         }
     
-        const drink_type = isNapitki ? document.getElementById('drink_type').value : null;
+        
          // 🔴 3. Проверка: ако е напитка, обемът е задължителен
          if (isNapitki && (!volume || volume === '')) {
            return alert('Моля, въведи обем на напитката.');
@@ -231,6 +366,8 @@
           subcategory,
           is_new,
           is_visible: true,
+          sort_order,
+
         };
 
     
@@ -243,10 +380,38 @@
           if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при редакция</div>');
           status.innerHTML = '<div class="alert alert-success">✅ Промените са запазени!</div>';
         } else {
+          if (is_new) {
+            let reorderQuery = supabase
+              .from('menu')
+              .select('id, sort_order')
+              .eq('category', category)
+              .eq('subcategory', subcategory)
+              .eq('is_visible', true);
+          
+            if (subcategory === 'napitki' && drink_type) {
+              reorderQuery = reorderQuery.eq('drink_type', drink_type);
+            }
+          
+            const { data: others, error: reorderError } = await reorderQuery;
+          
+            if (!reorderError && others.length > 0) {
+              for (const item of others) {
+                await supabase
+                  .from('menu')
+                  .update({ sort_order: item.sort_order + 1 })
+                  .eq('id', item.id);
+              }
+            }
+          
+            sort_order = 1; // Новото предложение с най-висок приоритет
+            dishData.sort_order = 1; // обнови и в обекта
+          }
+        
           const { error } = await supabase.from('menu').insert([dishData]);
           if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при добавяне</div>');
           status.innerHTML = '<div class="alert alert-success">✅ Добавено успешно!</div>';
         }
+
     
         this.reset();
         editingItemId = null;
@@ -308,8 +473,13 @@
         const { data, error } = await supabase.from('menu').select('*');
         const container = document.getElementById('menu-list');
         container.innerHTML = '';
-        if (error) return console.error('Грешка при зареждане:', error);
-        data.sort((a, b) => b.is_new - a.is_new);
+        if (error) {
+          console.error('Грешка при зареждане:', error);
+          return;
+        }
+
+        data.sort((a, b) => a.sort_order - b.sort_order);
+
         data.forEach(item => {
           const cardWrapper = document.createElement('div');
           cardWrapper.className = 'col-md-4 mb-4';
@@ -318,8 +488,21 @@
           container.appendChild(cardWrapper);
         });
       }
+
     
       fetchMenu();
+
+
+      document.getElementById('search-input').addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        const allCards = document.querySelectorAll('#menu-list .card');
+
+        allCards.forEach(card => {
+          const title = card.querySelector('.card-title').textContent.toLowerCase();
+          card.parentElement.style.display = title.includes(query) ? 'block' : 'none';
+        });
+      });
+
     </script>
     
     
