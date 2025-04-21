@@ -85,6 +85,12 @@ a {
 .tab-content {
   padding-bottom: 40px; /* или 20px, според желанието ти */
 }
+img {
+  border-radius: 20px !important;
+}
+.ingredients {
+  text-align: center !important;
+}
 
 .mini_text{
   font-size: 20px !important;

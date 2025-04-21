@@ -297,24 +297,31 @@
                   style="z-index: 2; margin-top: -20px; margin-left: -10px;">
                   НОВО!</div>` : ''}
               <div>
-                <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
+                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
+
               </div>
               <h4>${item.name}</h4>
-              ${item.category === 'specialiteti' && item.subcategory === 'napitki' ? `
-                <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
-                <p class="card-text fst-italic text-muted">
-                  ${
-                    item.drink_type === 'alkoholna' ? '🍷 Алкохолна напитка' :
-                    item.drink_type === 'bezalkoholna' ? '🥤 Безалкохолна напитка' :
-                    item.drink_type === 'topla' ? '☕ Топла напитка' : ''
-                  }
-                </p>
+              ${item.category === 'specialiteti' && item.subcategory === 'napitki'
+                ? `
+                  <div>
+                    <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
+                    <p class="card-text fst-italic text-muted">
+                      ${
+                        item.drink_type === 'alkoholna' ? '🍷 Алкохолна напитка' :
+                        item.drink_type === 'bezalkoholna' ? '🥤 Безалкохолна напитка' :
+                        item.drink_type === 'topla' ? '☕ Топла напитка' : ''
+                      }
+                    </p>
+                  </div>
+                `
+                : `
+                  <div>
+                    <p class="ingredients">${item.ingredients || ''}</p>
+                    <p class="card-text">${item.weight || ''} гр.</p>
+                  </div>
+                `
+              }
 
-
-              ` : `
-                <p class="ingredients">${item.ingredients || ''}</p>
-                <p class="card-text">${item.weight || ''} гр.</p>
-              `}
               <p class="price">${item.price.toFixed(2)} лв.</p>
             </div>
           `;
@@ -410,7 +417,8 @@
                 <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
                   style="z-index: 2; margin-top: -20px; margin-left: -10px;">НОВО!</div>` : ''}
               <div>
-                <img src="${item.image_url}" class="menu-img img-fluid" alt="${item.name}">
+                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
+
               </div>
               <h4>${item.name}</h4>
               ${subcategory === 'napitki' ? `
