@@ -239,8 +239,8 @@ img {
   justify-content: center !important;
 }
 .container{
-  align-items: left !important;
-  justify-content: left !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 @media (min-width: 1200px) {
   .header{
@@ -255,13 +255,22 @@ img {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    text-align: center !important;
   }
 }
 .container h2{
   font-weight: 900px !important;
 }
+
+.super-bold {
+  font-weight: 900; /* максимално удебеляване */
+}
+
 .container p{
   font-weight: 900px !important;
+}
+.card-title{
+  text-align: center !important;
 }
 
 .text_logo{
@@ -847,6 +856,7 @@ section,
   font-weight: 400;
   margin-bottom: 5px;
   font-family: var(--default-font);
+  text-align: center !important;
 }
 
 .menu .tab-content .menu-item .ingredients {
