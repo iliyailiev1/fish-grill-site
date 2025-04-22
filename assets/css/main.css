@@ -859,6 +859,7 @@ section,
   text-align: center !important;
 }
 
+
 .menu .tab-content .menu-item .ingredients {
   font-family: var(--nav-font);
   color: color-mix(in srgb, var(--default-color), transparent 50%);
@@ -869,6 +870,34 @@ section,
   font-size: 24px;
   font-weight: 700;
   color: var(--accent-color);
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+#map-popup {
+  display: none;
+}
+#map-popup.active {
+  display: flex;
+}
+
+.allergens-icons {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
 }
 
 

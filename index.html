@@ -28,7 +28,19 @@
 
   <link href="assets/css/main.css" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/arturo-trial" rel="stylesheet">
+  <style>
+    .allergens-icons {
+      font-size: 1.2rem;
+      margin-top: 5px;
+    }
+  </style>
+  
 </head>
+<!-- За .ico файл -->
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+<!-- Или за .png файл -->
+<link rel="icon" href="..img/favicon.jpg" type="image/jpg">
 
 <body class="index-page">
 
@@ -42,6 +54,7 @@
   </header>
 
   
+  
 
   <main class="main">
     <section id="menu" class="menu section">
@@ -54,9 +67,11 @@
         </div>
         <button class="show-map-btn">За Локация Натиснете тук!</button>
         
-        <div id="map-popup" class="popup-overlay">
+        <div id="map-popup" class="popup-overlay map-popup">
+
           <div class="popup-content">
-            <span class="close-btn">&times;</span>
+            <span class="close-map-btn">&times;</span>
+
             <iframe
               width="100%"
               height="100%"
@@ -101,6 +116,18 @@
           <a href="tel:+359877077969" class="btn btn-success btn-lg shadow">
               📞 Поръчай по телефона
           </a>
+        </div>
+        <div class="text-center mt-5 mb-3">
+          <button class="btn btn-warning fw-bold" id="show-allergens-btn">📘 Алергени</button>
+        </div>
+        
+        <div id="allergens-popup" class="popup-overlay" style="display: none;">
+          <div class="popup-content text-start bg-white p-4 rounded shadow" style="max-width: 600px; margin: auto;">
+            <span class="close-btn float-end" style="cursor:pointer;">&times;</span>
+            <h4 class="mb-3">Списък с алергени</h4>
+            <ul class="list-group" id="allergen-list"></ul>
+
+          </div>
         </div>
         
         
@@ -218,31 +245,40 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const allergenEmojiMap = {
+      "глутен": "🌾",
+      "ракообразни": "🦐",
+      "яйца": "🥚",
+      "риба": "🐟",
+      "фъстъци": "🥜",
+      "соя": "🌱",
+      "мляко": "🥛",
+      "ядки": "🌰",
+      "целина": "🥬",
+      "синап": "🌼",
+      "сусам": "⚪",
+      "серен диоксид и сулфити": "🧪",
+      "лупина": "🌿",
+      "мекотели": "🐚"
+    };
+
     document.addEventListener('DOMContentLoaded', async function () {
       // Скрий бутоните за напитки при първоначално зареждане
       document.getElementById('drink-type-filter').style.display = 'none';
 
 
-      const btn = document.querySelector('.show-map-btn');
-      const popup = document.getElementById('map-popup');
-      const closeBtn = popup?.querySelector('.close-btn');
-  
-      // Показване на Google карта
-      if (btn && popup && closeBtn) {
-        btn.addEventListener('click', () => {
-          popup.classList.add('active');
-        });
-  
-        closeBtn.addEventListener('click', () => {
-          popup.classList.remove('active');
-        });
-  
-        popup.addEventListener('click', (e) => {
-          if (e.target === popup) {
-            popup.classList.remove('active');
-          }
+      const mapPopup = document.getElementById('map-popup');
+      const mapOpenBtn = document.querySelector('.show-map-btn');
+      const mapCloseBtn = document.querySelector('.close-map-btn');
+
+      if (mapPopup && mapOpenBtn && mapCloseBtn) {
+        mapOpenBtn.addEventListener('click', () => mapPopup.classList.add('active'));
+        mapCloseBtn.addEventListener('click', () => mapPopup.classList.remove('active'));
+        mapPopup.addEventListener('click', e => {
+          if (e.target === mapPopup) mapPopup.classList.remove('active');
         });
       }
+
   
       // Supabase клиент
       const supabase = window.supabase?.createClient
@@ -290,6 +326,7 @@
 
   
         data.forEach(item => {
+          console.log('🔍 Проверка алергени за', item.name, item.allergens);
           container.innerHTML += `
             <div class="col-lg-4 menu-item position-relative">
               ${item.is_new ? `
@@ -318,6 +355,14 @@
                   <div>
                     <p class="ingredients">${item.ingredients || ''}</p>
                     <p class="card-text">${item.weight || ''} гр.</p>
+                    <p class="card-text allergens-icons">
+                      Алергени: ${
+                        Array.isArray(item.allergens) && item.allergens.length > 0
+                          ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                          : '<span class="text-muted fst-italic">Няма алергени</span>'
+                      }
+                    </p>
+
                   </div>
                 `
               }
@@ -326,6 +371,8 @@
             </div>
           `;
         });
+        
+
       }
   
       // Зареждане на подкатегория
@@ -421,7 +468,8 @@
 
               </div>
               <h4>${item.name}</h4>
-              ${subcategory === 'napitki' ? `
+              ${item.subcategory === 'napitki' ? `
+
                 <p class="card-text">${item.volume} ${getVolumeUnit(item)}</p>
                 <p class="card-text fst-italic text-muted">
                   ${
@@ -433,6 +481,15 @@
               ` : `
                 <p class="ingredients">${item.ingredients || ''}</p>
                 <p class="card-text">${item.weight || ''} гр.</p>
+                <p class="card-text allergens-icons">
+                  Алергени: ${
+                    Array.isArray(item.allergens) && item.allergens.length > 0
+                      ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                      : '<span class="text-muted fst-italic">Няма алергени</span>'
+                  }
+                </p>
+
+
               `}
               <p class="price">${item.price.toFixed(2)} лв.</p>
             </div>
@@ -479,6 +536,24 @@
         });
       }
     });
+    const allergenBtn = document.getElementById('show-allergens-btn');
+    const allergenPopup = document.getElementById('allergens-popup');
+    const closeAllergenPopup = allergenPopup?.querySelector('.close-btn');
+    const allergenListContainer = document.getElementById('allergen-list');
+    if (allergenListContainer && allergenEmojiMap) {
+      allergenListContainer.innerHTML = Object.entries(allergenEmojiMap)
+        .map(([k, v]) => `<li class="list-group-item">${v} ${k}</li>`)
+        .join('');
+    }
+
+    if (allergenBtn && allergenPopup && closeAllergenPopup) {
+      allergenBtn.addEventListener('click', () => allergenPopup.style.display = 'block');
+      closeAllergenPopup.addEventListener('click', () => allergenPopup.style.display = 'none');
+      allergenPopup.addEventListener('click', (e) => {
+        if (e.target === allergenPopup) allergenPopup.style.display = 'none';
+      });
+    }
+
   </script>
   
   

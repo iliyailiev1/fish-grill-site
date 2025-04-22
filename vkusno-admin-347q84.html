@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Menu Editor</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .allergens-icons {
+      font-size: 1.2rem;
+      margin-top: 5px;
+    }
+  </style>
+  
 </head>
 <body class="bg-light">
   <div class="container py-5">
@@ -45,7 +52,12 @@
       
       <div class="mb-3">
         <label for="image_file" class="form-label">Качи снимка</label>
-        <input type="file" class="form-control" id="image_file" accept="image/*" required>
+        <input type="file" class="form-control" id="image_file" accept="image/*">
+        <div class="mb-3" id="current-image-preview" style="display: none;">
+          <label class="form-label">Текуща снимка</label><br>
+          <img id="current-image" src="" alt="Снимка" class="img-thumbnail" style="max-height: 200px;">
+        </div>
+        
       </div>
       <div class="mb-3">
         <label for="category" class="form-label">Основна Категория</label>
@@ -89,6 +101,10 @@
         <input type="checkbox" class="form-check-input" id="is_new">
         <label class="form-check-label" for="is_new">Ново предложение</label>
       </div>
+      <div class="mb-3" id="allergens-container">
+        <label class="form-label">Алергени</label>
+      </div>
+      
       <button type="submit" class="btn btn-primary">Добави ястието</button>
     </form>
     <div class="mb-4">
@@ -132,13 +148,29 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Вмъкни това в твоя HTML файл, заменяйки съществуващия <script> -->
     <script>
+      let editingItemId = null;
+      let currentFilter = '';
+      let currentImageUrl = ''; // 🟢 това да е глобално
+      const allergenEmojiMap = {
+        "глутен": "🌾",
+        "ракообразни": "🦐",
+        "яйца": "🥚",
+        "риба": "🐟",
+        "фъстъци": "🥜",
+        "соя": "🌱",
+        "мляко": "🥛",
+        "ядки": "🌰",
+        "целина": "🥬",
+        "синап": "🌼",
+        "сусам": "⚪",
+        "серен диоксид и сулфити": "🧪",
+        "лупина": "🌿",
+        "мекотели": "🐚"
+      };
       const supabase = window.supabase.createClient(
         'https://huullvfombogfhmssqrc.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
       );
-    
-      let editingItemId = null;
-      let currentFilter = '';
 
     
       function getVolumeUnitText() {
@@ -214,14 +246,9 @@
         document.getElementById('menu-list').scrollIntoView({ behavior: 'smooth' });
       }
 
-
-
-
-
-
-
-    
       function renderCard(item) {
+        console.log("🧩 Визуализиране на ястие:", item.name, "Алергени:", item.allergens);
+
         return `
           <div class="card position-relative h-100" data-subcat="${item.subcategory || ''}" data-category="${item.category}" data-drink-type="${item.drink_type || ''}">
 
@@ -241,6 +268,15 @@
                 : `
                   <p class="card-text">${item.ingredients || ''}</p>
                   <p class="card-text">${item.weight || ''} гр.</p>
+                  <p class="card-text allergens-icons">
+                    ${
+                      Array.isArray(item.allergens) && item.allergens.length > 0
+                        ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                        : '<span class="text-muted fst-italic">Няма алергени</span>'
+                    }
+                  </p>
+
+
                 `}
               <p class="card-text fw-bold">${item.price.toFixed(2)} лв.</p>
               <p class="text-muted">Категория: ${item.category}</p>
@@ -258,6 +294,8 @@
           </div>
         `;
       }
+      
+
       async function moveUp(id) {
         await moveItem(id, -1);
       }
@@ -293,8 +331,36 @@
 
         await fetchMenu();
         filterCards(currentFilter); // 🟢 възстанови филтъра след местене
-
+        console.log('Алергени:', item.allergens);
       }
+      const allergensList = [
+        "глутен", "ракообразни", "яйца", "риба", "фъстъци", "соя",
+        "мляко", "ядки", "целина", "синап", "сусам",
+        "серен диоксид и сулфити", "лупина", "мекотели"
+      ];
+
+      function renderAllergenCheckboxes(selected = []) {
+        const container = document.getElementById('allergens-container');
+        container.innerHTML = '<label class="form-label">Алергени</label><br>';
+      
+        allergensList.forEach(a => {
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.name = 'allergens';
+          checkbox.value = a;
+          checkbox.classList.add('form-check-input', 'me-1');
+          if (selected.includes(a)) checkbox.checked = true;
+        
+          const label = document.createElement('label');
+          label.classList.add('form-check-label', 'me-3');
+          label.appendChild(checkbox);
+          label.append(` ${a}`);
+        
+          container.appendChild(label);
+        });
+      }
+
+      renderAllergenCheckboxes(); // за първоначално зареждане
 
     
       document.getElementById('menu-form').addEventListener('submit', async function (e) {
@@ -344,7 +410,10 @@
           if (uploadError) return alert('Грешка при качване: ' + uploadError.message);
           const { data: urlData } = supabase.storage.from('menu-images').getPublicUrl(filePath);
           image_url = urlData.publicUrl;
+        } else if (editingItemId && currentImageUrl) {
+          image_url = currentImageUrl; // 🟢 използваме старата снимка
         }
+
     
         
          // 🔴 3. Проверка: ако е напитка, обемът е задължителен
@@ -354,6 +423,10 @@
          if (isNapitki && (!drink_type || drink_type === '')) {
           return alert('Моля, избери тип напитка.');
         }
+        const selectedAllergens = Array.from(
+          document.querySelectorAll('input[name="allergens"]:checked')
+        ).map(cb => cb.value);
+
         const dishData = {
           name,
           ingredients: isNapitki ? null : ingredients,
@@ -367,8 +440,9 @@
           is_new,
           is_visible: true,
           sort_order,
-
+          allergens: selectedAllergens,
         };
+        console.log("📤 Изпращане на ястие:", dishData);
 
     
         if (image_url) dishData.image_url = image_url;
@@ -429,9 +503,18 @@
       });
     
       window.editItem = async function (id) {
+        currentImageUrl = '';
         
+
         const { data, error } = await supabase.from('menu').select('*').eq('id', id).single();
+        currentImageUrl = data.image_url || '';
+        document.getElementById('current-image').src = currentImageUrl;
+        document.getElementById('current-image-preview').style.display = currentImageUrl ? 'block' : 'none';
         if (error) return alert('Грешка при зареждане на ястието.');
+
+
+        renderAllergenCheckboxes(data.allergens || []);
+
         if (data.subcategory === 'napitki') {
           document.getElementById('volume').value = data.volume || '';
           document.getElementById('volume-unit-toggle').checked = data.volume_unit === 'л.';
@@ -481,6 +564,8 @@
         data.sort((a, b) => a.sort_order - b.sort_order);
 
         data.forEach(item => {
+          console.log("📥 Заредени ястия:", data);
+
           const cardWrapper = document.createElement('div');
           cardWrapper.className = 'col-md-4 mb-4';
           cardWrapper.id = `card-${item.id}`;
