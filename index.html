@@ -490,7 +490,7 @@
                 <p class="ingredients">${item.ingredients || ''}</p>
                 <p class="card-text">${item.weight || ''} гр.</p>
                 <p class="card-text allergens-icons">
-                  Алергени: ${
+                  ${
                     Array.isArray(item.allergens) && item.allergens.length > 0
                       ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
                       : '<span class="text-muted fst-italic">Няма алергени</span>'
