@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <link rel="icon" href="assets/img/logo.jpg" type="image/jpeg">
+  <link rel="icon" href="assets/img/favicon.png" type="image/jpeg">
 
   <title>Ресторан "Вкусно"</title>
   <meta name="description" content="">
@@ -17,13 +17,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Amatic+SC:wght@400;700&display=swap"
     rel="stylesheet">
 <!-- OG image за Facebook, Google, и др. -->
-  <meta property="og:image" content="https://vkusnobg.com/assets/img/ИМЕ_НА_ФАЙЛА.png">
+  <meta property="og:image" content="https://vkusnobg.com/assets/img/favicon.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   
   <!-- Twitter card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://vkusnobg.com/assets/img/ИМЕ_НА_ФАЙЛА.png">
+  <meta name="twitter:image" content="https://vkusnobg.com/assets/img/favicon.png">
 
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -364,7 +364,7 @@
                     <p class="ingredients">${item.ingredients || ''}</p>
                     <p class="card-text">${item.weight || ''} гр.</p>
                     <p class="card-text allergens-icons">
-                      Алергени: ${
+                      ${
                         Array.isArray(item.allergens) && item.allergens.length > 0
                           ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
                           : '<span class="text-muted fst-italic">Няма алергени</span>'

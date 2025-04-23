@@ -896,9 +896,14 @@ section,
 }
 
 .allergens-icons {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   margin-top: 0.5rem;
+  line-height: 1.4;
 }
+.allergens-icons span {
+  font-size: 1rem;
+}
+
 
 
 /*--------------------------------------------------------------
