@@ -1090,7 +1090,7 @@ section,
 .drink-type-btn.active {
   border-bottom: 2px solid var(--accent-color) !important;
   background-color: var(--background-color);
-  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  color: var(--accent-color);
   font-weight: 600 !important;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
