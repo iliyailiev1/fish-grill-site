@@ -120,7 +120,7 @@ img {
 
 .show-map-btn {
   position: absolute;
-  bottom: 30px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -164,18 +164,51 @@ img {
 .popup-overlay.active {
   display: flex;
 }
+iframe{
+  height: 360px;
+}
+
+.close-map-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  background-color: #ff4444;
+  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s, transform 0.2s;
+}
 
 .popup-content {
   position: relative;
   background-color: white;
   border-radius: 12px;
-  padding: 0;
+  padding-top: 50px;
   overflow: hidden;
-  width: 80%;
-  max-width: 600px;
-  height: 400px;
+  width: 90%;
+  max-width: 700px;
+  height: 600px; /* увеличена височина */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
+@media (max-width: 768px) {
+  .popup-content {
+    height: 480px; /* малко по-ниско за телефони, но пак да събира бутона */
+  }
+}
+.popup-content .map {
+  height: calc(100% - 60px); /* 60px е височината за бутона + малко разстояние */
+}
+
+
 
 .close-btn {
   position: absolute;
