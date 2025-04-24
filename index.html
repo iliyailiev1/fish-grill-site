@@ -125,21 +125,6 @@
               📞 Поръчай по телефона
           </a>
         </div>
-        <div class="text-center mt-5 mb-3">
-          <button class="btn btn-warning fw-bold" id="show-allergens-btn">📘 Алергени</button>
-        </div>
-        
-        <div id="allergens-popup" class="popup-overlay" style="display: none;">
-          <div class="popup-content text-start bg-white p-4 rounded shadow" style="max-width: 600px; margin: auto;">
-            <span class="close-btn float-end" style="cursor:pointer;">&times;</span>
-            <h4 class="mb-3">Списък с алергени</h4>
-            <ul class="list-group" id="allergen-list"></ul>
-
-          </div>
-        </div>
-        
-        
-        
         <div class="container">   
           <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="100">
             <li class="nav-item">
@@ -176,24 +161,24 @@
               <h3>Основно меню</h3>
             </div>
             <div class="subcat d-flex justify-content-center mb-4 gap-2 flex-wrap">
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('supi', this)">Супи</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('salati', this)">Салати</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('predqstiq', this)">Предястия</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('osnovni', this)">Основни ястия</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('ribni', this)">Рибни ястия</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('skara', this)">Скара</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('deserti', this)">Десерти</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('pite', this)">Хляб</button>
-              <button class="btn btn-outline-danger subcategory-btn" onclick="loadSubcategory('napitki', this, null, true)">Напитки</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('supi', this)">Супи</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('salati', this)">Салати</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('predqstiq', this)">Предястия</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('osnovni', this)">Основни ястия</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('ribni', this)">Рибни ястия</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('skara', this)">Скара</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('deserti', this)">Десерти</button>
+              <button class="subcategory-btn" onclick="loadSubcategory('pite', this)">Хляб</button>
+              <button class="subcategory-btn active" onclick="loadSubcategory('napitki', this, null, true)">Напитки</button>
 
 
             </div>
             
             <!-- 💡 Вече извън .subcat -->
             <div id="drink-type-filter" class="justify-content-center mb-4 gap-2 flex-wrap" style="display: none;">
-              <button class="btn btn-outline-danger drink-type-btn" data-drink-type="bezalkoholna" onclick="loadSubcategory('napitki', this, 'bezalkoholna')">🥤 Безалкохолни</button>
-              <button class="btn btn-outline-danger drink-type-btn" data-drink-type="alkoholna" onclick="loadSubcategory('napitki', this, 'alkoholna')">🍷 Алкохолни</button>
-              <button class="btn btn-outline-danger drink-type-btn" data-drink-type="topla" onclick="loadSubcategory('napitki', this, 'topla')">☕ Топли</button>
+              <button class="drink-type-btn" data-drink-type="bezalkoholna" onclick="loadSubcategory('napitki', this, 'bezalkoholna')">🥤 Безалкохолни</button>
+              <button class="drink-type-btn" data-drink-type="alkoholna" onclick="loadSubcategory('napitki', this, 'alkoholna')">🍷 Алкохолни</button>
+              <button class="drink-type-btn" data-drink-type="topla" onclick="loadSubcategory('napitki', this, 'topla')">☕ Топли</button>
               
             </div>
             
@@ -201,7 +186,48 @@
           </div>
         </div>
       </div>
+      <div class="container" data-aos="fade-up">
+    
+        <!-- 📘 Бутон за алергени -->
+        <div class="text-center">
+          <button class="btn fw-semibold custom-allergen-btn" id="show-allergens-btn">📘 Алергени</button>
+        </div>
     </section>
+
+    <section class="celebration-section py-5">
+
+    
+        <!-- 🧾 Попъп с алергени -->
+        <div id="allergens-popup" class="popup-overlay" style="display: none;">
+          <div class="popup-content text-start bg-white p-4 rounded shadow" style="max-width: 600px; margin: auto;">
+            <span class="close-btn float-end" style="cursor:pointer;">&times;</span>
+            <h4 class="mb-3">Списък с алергени</h4>
+            <ul class="list-group" id="allergen-list"></ul>
+          </div>
+        </div>
+    
+        <!-- 🎉 Инфо за празненства -->
+        <div class="row align-items-center flex-column flex-lg-row">
+          <div class="col-lg-6 mb-4 mb-lg-0 text-center">
+            <img src="assets/img/celebration.jpg" alt="Празненство във Вкусно" class="img-fluid rounded shadow" style="max-height: 300px; object-fit: cover;" />
+          </div>
+          <div class="col-lg-6 text-center text-lg-start">
+            <h3 class="fw-bold mb-3 text-danger">🎉 Празнувайте с нас!</h3>
+            <p class="fs-6 text-muted">
+              Организираме <strong>рождени дни, събирания, партита и фирмени събития</strong> с грижа и вкус.
+            </p>
+            <p class="fs-6 fst-italic text-secondary">
+              Свържи се с нас за персонализирано предложение.
+            </p>
+            <a href="tel:+359877077969" class="btn btn-success mt-3 px-4">📞 Обади се сега</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    
+    
+
   </main>
 
   <footer id="footer" class="footer dark-background">
@@ -386,21 +412,31 @@
       // Зареждане на подкатегория
       async function loadSubcategory(subcategory, buttonElement = null, drinkTypeFilter = null, userClicked = false) {
         // Изчисти предишно активните бутони
-        document.querySelectorAll('.subcategory-btn, .drink-type-btn').forEach(btn => btn.classList.remove('active'));
-        if (buttonElement) {
+        // Премахни active от всички подкатегории
+        document.querySelectorAll('.subcategory-btn').forEach(btn => btn.classList.remove('active'));
+
+        // Премахни active от всички видове напитки
+        document.querySelectorAll('.drink-type-btn').forEach(btn => btn.classList.remove('active'));
+
+        // Добави active само на избраната подкатегория
+        if (subcategory === 'napitki') {
+          const napitkiBtn = document.querySelector('.subcategory-btn[data-subcategory="napitki"]');
+          if (napitkiBtn) napitkiBtn.classList.add('active');
+        } else if (buttonElement && buttonElement.classList.contains('subcategory-btn')) {
           buttonElement.classList.add('active');
         }
 
+
+        // Добави active само на избрания тип напитка
         if (drinkTypeFilter) {
           document.querySelectorAll('.drink-type-btn').forEach(btn => {
             const btnType = btn.getAttribute('data-drink-type');
             if (btnType === drinkTypeFilter) {
               btn.classList.add('active');
-            } else {
-              btn.classList.remove('active');
             }
           });
         }
+
 
 
 

@@ -103,19 +103,20 @@ img {
 .subcat{
   margin-bottom: 50px !important;
 }
-.subcat .btn{
-  background-color: #ffffff;
+.subcat .btn {
+  background: linear-gradient(135deg, #fff 0%, #ffe5e5 100%);
   color: #ce1212;
-  border: 1px solid #ce1212;
-  border-radius: 32px;
-  padding: 10px 24px;
-  font-weight: 500;
-  font-size: 15px;
+  border: 2px solid #ce1212;
+  border-radius: 30px;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(206, 18, 18, 0.1);
   position: relative;
-  overflow: hidden;
-  font-weight: 900px !important;
 }
+
 
 .show-map-btn {
   position: absolute;
@@ -136,12 +137,6 @@ img {
   z-index: 10;
   transition: background-color 0.3s, border-color 0.3s, transform 0.2s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.subcategory-btn.active {
-  background-color: #ce1212 !important; /* Червено */
-  color: white !important;
-  border-color: #ce1212 !important;
 }
 
 .show-map-btn:hover {
@@ -217,11 +212,11 @@ img {
 }
 
 
-.subcat .btn:hover{
-  background-color: #ce1212;
+.subcat .btn:hover {
+  background: #ce1212;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 129, 129, 0.3);
+  box-shadow: 0 6px 24px rgba(206, 18, 18, 0.25);
 }
 .subcat .btn:active {
   transform: translateY(2px);
@@ -895,14 +890,83 @@ section,
   display: flex;
 }
 
-.allergens-icons {
+/* Алергени - Оверлей */
+#allergens-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Алергени - Съдържание */
+#allergens-popup .popup-content {
+  background-color: #fff;
+  border-radius: 10px;
+  max-width: 90%;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Алергени - Затваряне */
+#allergens-popup .close-btn {
   font-size: 1.5rem;
-  margin-top: 0.5rem;
-  line-height: 1.4;
+  color: #ce1212;
 }
-.allergens-icons span {
-  font-size: 1rem;
+
+/* Алергени - бутона */
+.custom-allergen-btn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #ced4da;
+  font-size: 0.9rem;
+  padding: 6px 18px;
+  border-radius: 30px;
+  box-shadow: none;
+  transition: 0.2s;
 }
+
+.custom-allergen-btn:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* Отзивчивост за мобилни */
+@media (max-width: 768px) {
+  .celebration-section img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  #allergens-popup .popup-content {
+    padding: 1.5rem;
+  }
+}
+
+.celebration-section {
+  background: linear-gradient(to bottom, #fff 50%, #f9f9f9 100%) !important;
+
+}
+
+
+.celebration-section {
+  background-color: #ffffff;
+}
+.celebration-section .container,
+.celebration-section .row {
+  overflow: visible;
+}
+
+.celebration-section img {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+}
+
 
 
 
@@ -1006,25 +1070,36 @@ section,
   background: color-mix(in srgb, var(--accent-color), transparent 20%);
 }
 /* Активна подкатегория (Супи, Салати и т.н.) */
+.subcategory-btn,
+.drink-type-btn {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid #d8d6d6 !important;
+  background-color: var(--background-color);
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  padding: 8px 14px;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: var(--default-font);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
 .subcategory-btn.active,
 .drink-type-btn.active {
-  background-color: var(--accent-color); /* Червено */
-  color: white;
-  border-color: var(--accent-color);
-  transform: scale(1.05);
-  font-weight: bold;
-  box-shadow: 0 6px 18px rgba(206, 18, 18, 0.25);
+  border-bottom: 2px solid var(--accent-color) !important;
+  background-color: var(--background-color);
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  font-weight: 600 !important;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
+
+
 .subcategory-btn:hover,
 .drink-type-btn:hover {
   transform: scale(1.05);
   background-color: var(--accent-color);
 }
 
-
-/*--------------------------------------------------------------
-# Starter Section Section
---------------------------------------------------------------*/
-.starter-section {
-  /* Add your styles here */
-}
