@@ -165,7 +165,8 @@ img {
   display: flex;
 }
 iframe{
-  height: 360px;
+  height: 350px;
+  margin-top: 30px;
 }
 
 .close-map-btn {
@@ -174,7 +175,7 @@ iframe{
   right: 14px;
   width: 36px;
   height: 36px;
-  background-color: #ff4444;
+  background-color: #d3d1d1;
   color: #333;
   font-size: 20px;
   font-weight: bold;
@@ -184,7 +185,7 @@ iframe{
   justify-content: center;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  border: none;
+  border: 0.8px sloid black;
   transition: background-color 0.3s, transform 0.2s;
 }
 
