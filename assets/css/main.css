@@ -1135,3 +1135,17 @@ section,
   background-color: var(--accent-color);
 }
 
+.card-box {
+  background: linear-gradient(135deg, #ffffff, #f2fdb2);  /* червен акцент */
+  border-radius: 20px;
+  padding: 40px;
+  width: 95%;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 40px rgba(172, 172, 172, 0.8);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 0 auto;
+  
+}
+
+
