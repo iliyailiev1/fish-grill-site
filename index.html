@@ -200,31 +200,51 @@
           </div>
         </div>
     </section>
-
-    <section class="celebration-section py-5">
-      <div class="container">
-        <div class="card-box row align-items-center flex-column flex-lg-row">
-          <div class="col-lg-6 mb-4 mb-lg-0 text-center">
-            <img src="assets/img/celebration.jpg" alt="Празненство във Вкусно" class="img-fluid rounded shadow" style="max-height: 300px; object-fit: cover;" />
-          </div>
-          <div class="col-lg-6 text-center text-lg-start">
-            <h3 class="fw-bold mb-3 text-danger">🎉 Празнувайте с нас!</h3>
-            <p class="fs-6 text-muted">
-              Организираме <strong>рождени дни, събирания, партита и фирмени събития</strong> с грижа и вкус.
-            </p>
-            <p class="fs-6 fst-italic text-secondary">
-              Свържи се с нас за персонализирано предложение.
-            </p>
-            <a href="tel:+359877077969" class="btn btn-success mt-3 px-4">📞 Обади се сега</a>
+    
+    <div id="celebrationCarousel" class="carousel slide carousel-fade mb-5 mt-4" data-bs-ride="carousel" data-bs-interval="4000">
+      <div class="carousel-inner p-4">
+    
+        <!-- Първи слайд -->
+        <div class="carousel-item active rounded-4 shadow overflow-hidden">
+          <div class="position-relative text-white" style="height: 600px;">
+            <img src="assets/img/celebration.jpg" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover rounded-4" alt="Празненства">
+            <div class="position-absolute top-0 start-0 w-100 h-100 custom-overlay rounded-4"></div>
+    
+            <!-- Заглавие горе -->
+            <div class="position-absolute start-50 translate-middle-x text-center" style="top: 60px;">
+              <h2 class="display-4 fw-bold mb-0 text-shadow-strong text-white" style="width: 300px;">🎉 Празнувайте специалните моменти!</h2>
+            </div>
+    
+            <!-- Текст долу -->
+            <div class="position-absolute start-50 translate-middle-x text-center" style="bottom: 60px;">
+              <p class="lead fw-bold fst-italic mb-0 text-shadow-soft" style="width: 300px;">Организираме рождени дни, партита и събирания с грижа и вкус.</p>
+            </div>
           </div>
         </div>
+    
+        <!-- Втори слайд -->
+        <div class="carousel-item rounded-4 shadow overflow-hidden">
+          <div class="position-relative text-white" style="height: 600px;">
+            <img src="assets/img/match.jpg" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover rounded-4" alt="Гледай мач">
+            <div class="position-absolute top-0 start-0 w-100 h-100 custom-overlay rounded-4"></div>
+    
+            <!-- Заглавие горе -->
+            <div class="position-absolute start-50 translate-middle-x text-center" style="top: 60px;">
+              <h2 class="display-4 fw-bold mb-0 text-shadow-strong text-white" style="width: 300px;">🏆 Гледай любимия си мач при нас!</h2>
+            </div>
+    
+            <!-- Текст долу -->
+            <div class="position-absolute start-50 translate-middle-x text-center" style="bottom: 60px;">
+              <p class="lead fw-bold fst-italic mb-0 text-shadow-soft" style="width: 300px;">Резервирай маса и гледай спортните събития на голям екран!</p>
+            </div>
+          </div>
+        </div>
+    
       </div>
-    </section>
+    </div>
     
     
-    
-    
-
+   
   </main>
 
   <footer id="footer" class="footer dark-background">
@@ -599,6 +619,8 @@
   
   
   <script src="assets/js/main.js"></script>
+  
+
 </body>
 
 </html>

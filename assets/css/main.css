@@ -1147,5 +1147,30 @@ section,
   margin: 0 auto;
   
 }
+.zoom-effect {
+  transition: transform 10s ease;
+}
+.carousel-item img {
+  transition: transform 15s ease;
+  width: 100%;
+  box-shadow: #111;
+}
+.carousel-item.active img {
+  transform: scale(1.08);
+  
+}
 
+/* Тъмен overlay */
+.custom-overlay {
+  background: rgba(0, 0, 0, 0.55);
+}
 
+/* Силна сянка за заглавията */
+.text-shadow-strong {
+  text-shadow: 4px 4px 10px rgba(0, 0, 0, 1);
+}
+
+/* По-мека сянка за текстовете */
+.text-shadow-soft {
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+}
