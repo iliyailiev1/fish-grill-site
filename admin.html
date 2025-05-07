@@ -5,7 +5,6 @@
   <title>Админ - Резервации</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-light">
     <div id="admin-panel" style="display: none;">
@@ -37,9 +36,19 @@
             </div>
         </div>
     </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+
+
+    const client = window.supabase.createClient(
+        'https://huullvfombogfhmssqrc.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
+    );
+
     const entered = prompt("🔐 Моля, въведете парола за достъп:");
     const panel = document.getElementById("admin-panel");
+
 
     if (entered !== "Dimitar.69") {
       alert("⛔️ Грешна парола!");
@@ -48,11 +57,6 @@
       panel.style.display = "block"; // показва админ панела
       loadReservations();            // чак тогава зарежда резервациите
     }
-
-    const client = window.supabase.createClient(
-     'https://huullvfombogfhmssqrc.supabase.co',
-     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
-    );
    
     async function loadReservations() {
       const { data, error } = await client
@@ -75,8 +79,11 @@
         tbody.innerHTML = `<tr><td colspan="8" class="text-center">Няма резервации.</td></tr>`;
         return;
       }
-    
+
+
       data.forEach((res, index) => {
+        const localDate = new Date(res.created_at);
+        localDate.setHours(localDate.getHours() + 3);
         tbody.innerHTML += `
           <tr>
             <td>${index + 1}</td>
@@ -86,7 +93,8 @@
             <td>${res.date}</td>
             <td>${res.time}</td>
             <td>${res.message || ''}</td>
-            <td>${new Date(res.created_at).toLocaleString("bg-BG")}</td>
+            <td>${localDate.toLocaleString("bg-BG")}</td>
+
           </tr>
         `;
       });
@@ -135,13 +143,14 @@
             <td>${res.date}</td>
             <td>${res.time}</td>
             <td>${res.message || ''}</td>
-            <td>${new Date(res.created_at).toLocaleString("bg-BG")}</td>
+            <td>${localDate.toLocaleString("bg-BG")}</td>
+
           </tr>
         `;
       });
     }
 
-    loadReservations();
+    
 
   </script>
 
