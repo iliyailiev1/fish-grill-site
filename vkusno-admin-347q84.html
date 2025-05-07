@@ -72,7 +72,6 @@
         <label for="subcategory" class="form-label">Подкатегория</label>
         <select id="subcategory" class="form-select">
           <option value="">-- Избери подкатегория --</option>
-          <option value="supi">Супи</option>
           <option value="salati">Салати</option>
           <option value="predqstiq">Предястия</option>
           <option value="osnovni">Основни ястия</option>
@@ -99,7 +98,7 @@
       
       <div class="mb-3 form-check">
         <input type="checkbox" class="form-check-input" id="is_new">
-        <label class="form-check-label" for="is_new">Ново предложение</label>
+        <label class="form-check-label" for="is_new">Супи</label>
       </div>
       <div class="mb-3" id="allergens-container">
         <label class="form-label">Алергени</label>
@@ -121,7 +120,6 @@
         <button class="btn btn-outline-primary btn-sm" onclick="filterCards('obedno-menu')">Обедно меню</button>
     
         <!-- Основно меню (specialiteti) с подсекции -->
-        <button class="btn btn-outline-success btn-sm" onclick="filterCards('supi')">Супи</button>
         <button class="btn btn-outline-success btn-sm" onclick="filterCards('salati')">Салати</button>
         <button class="btn btn-outline-success btn-sm" onclick="filterCards('predqstiq')">Предястия</button>
         <button class="btn btn-outline-success btn-sm" onclick="filterCards('osnovni')">Основни ястия</button>
@@ -252,7 +250,7 @@
         return `
           <div class="card position-relative h-100" data-subcat="${item.subcategory || ''}" data-category="${item.category}" data-drink-type="${item.drink_type || ''}">
 
-            ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">НОВО!</div>' : ''}
+            ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">Супи</div>' : ''}
             <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${item.name}">
             <div class="card-body">
               <h5 class="card-title">${item.name}</h5>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Резервация | Ресторант "Вкусно"</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+</head>
+<body class="bg-light">
+
+  <div class="container mt-5 mb-5">
+    <h1 id="reservation-title" class="text-center mb-4 text-danger fw-bold">📅 Направи резервация</h1>
+
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+                <form>
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Име и фамилия *</label>
+                    <input type="text" class="form-control" id="name" name="name" autocomplete="name" placeholder="Вашето име" required>
+                  </div>
+              
+                  <div class="mb-3">
+                    <label for="phone" class="form-label">Телефон *</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" autocomplete="tel" placeholder="+359..." required>
+                  </div>
+              
+                  <div class="mb-3">
+                    <label for="guests" class="form-label">Брой гости *</label>
+                    <input type="number" class="form-control" id="guests" name="guests" autocomplete="off" min="1" required>
+                    <div id="guest-error" class="text-danger fst-italic mt-1" style="display: none;">
+                      Максималният брой гости е 50.
+                    </div>
+                  </div>
+                  
+              
+                  <div class="mb-3">
+                    <label for="date" class="form-label">Дата *</label>
+                    <input type="text" class="form-control" id="date" name="date" autocomplete="off" required placeholder="Избери дата">
+                  </div>
+              
+                  <div class="mb-3">
+                    <label for="time" class="form-label">Час *</label>
+                    <input type="text" class="form-control" id="time" name="time" autocomplete="off" required placeholder="Избери час">
+                  </div>
+              
+                  <div class="mb-3">
+                    <label for="message" class="form-label">Допълнително съобщение</label>
+                    <textarea class="form-control" id="message" name="message" autocomplete="off" rows="3" placeholder="Имате ли специални изисквания?"></textarea>
+                  </div>
+              
+                  <button type="submit" class="btn btn-danger w-100 fw-bold">Изпрати заявка</button>
+                </form>
+                <div id="success-message" class="text-center" style="display: none;">
+                    <div style="font-size: 80px;">✅</div>
+                    <h3 class="text-success mt-3">Заявката беше изпратена успешно!</h3>
+                    <p class="text-muted mt-2 fst-italic">Очаквайте потвърждение за резервацията на посочения телефон!</p>
+                  </div>
+                  
+            </div>  
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Flatpickr core -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Flatpickr Bulgarian locale -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/bg.js"></script>
+
+<script>
+  // Инициализация на дата (с българска локализация и забрана на минали дни)
+  flatpickr("#date", {
+    locale: "bg",
+    dateFormat: "d.m.Y",
+    minDate: "today"
+  });
+
+  // Инициализация на час (с 24-часов формат и интервал)
+  flatpickr("#time", {
+    locale: "bg",
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    minTime: "10:00",
+    maxTime: "22:00"
+  });
+
+  // Свържи се със Supabase
+  const supabase = window.supabase.createClient(
+    'https://huullvfombogfhmssqrc.supabase.co', // Твоят проектен URL
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY' // anon ключ
+  );
+
+  // Слушай за изпращане на формата
+  document.querySelector("form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    // Събери данните от полетата
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const guestsInput = document.getElementById("guests");
+    const guestError = document.getElementById("guest-error");
+    const guests = parseInt(guestsInput.value.trim(), 10);
+
+    if (isNaN(guests) || guests > 50) {
+      guestError.style.display = "block";
+      guestsInput.classList.add("is-invalid");
+      return;
+    } else {
+      guestError.style.display = "none";
+      guestsInput.classList.remove("is-invalid");
+    }
+
+
+    const dateInput = document.getElementById("date").value;
+    const [day, month, year] = dateInput.split(".");
+    const date = `${year}-${month}-${day}`;
+    const time = document.getElementById("time").value;
+    const message = document.getElementById("message").value.trim();
+
+    // Запис в Supabase
+    const { error } = await supabase
+      .from("reservation")
+      .insert([{ name, phone, guests, date, time, message }]);
+
+    if (error) {
+      alert("❌ Грешка при изпращане. Моля, опитайте отново.");
+      console.error(error);
+    } else {
+        document.querySelector("form").style.display = "none";
+        document.getElementById("reservation-title").style.display = "none";
+        document.getElementById("success-message").style.display = "block";
+
+
+    }
+  });
+</script>
+
+
+
+</body>
+</html>
