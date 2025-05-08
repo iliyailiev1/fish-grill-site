@@ -117,6 +117,23 @@ img {
   position: relative;
 }
 
+.lower-btn {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 15px;
+  gap: 10px;
+  flex-wrap: wrap; /* За мобилни устройства */
+}
+
+.call-button-mobile {
+  flex: 1 1 45%; /* да се свиват при нужда */
+}
+
+.call-button-mobile a {
+  width: 90%;
+  display: inline-block;
+}
+
 
 .show-map-btn {
   position: absolute;
