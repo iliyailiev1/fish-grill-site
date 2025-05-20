@@ -8,6 +8,10 @@
 <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="icon" href="assets/img/favicon.png" type="image/jpeg">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+  emailjs.init("UhYuZLr3r6YZf7Ey-");
+</script>
 </head>
 <body class="bg-light">
 
@@ -130,16 +134,29 @@
       .from("reservation")
       .insert([{ name, phone, guests, date, time, message }]);
 
-    if (error) {
-      alert("❌ Грешка при изпращане. Моля, опитайте отново.");
-      console.error(error);
-    } else {
+      if (error) {
+        alert("❌ Грешка при изпращане. Моля, опитайте отново.");
+        console.error(error);
+      } else {
         document.querySelector("form").style.display = "none";
         document.getElementById("reservation-title").style.display = "none";
         document.getElementById("success-message").style.display = "block";
+      
+        // Изпращане на имейл
+        console.log("📨 Изпращаме имейл...");
 
+        emailjs.send("service_89096y6", "template_o6bsstf", {
+          message: "Нова заявка за резервация! Виж я тук: https://vkusno.bg/admin.html"
+        }).then(function(response) {
+          alert("✅ Имейл изпратен успешно! Статус: " + response.status);
+          console.log("📧 Имейл изпратен успешно!", response.status, response.text);
+        }, function(error) {
+          alert("❌ ГРЕШКА при имейл: " + JSON.stringify(error));
+          console.error("❌ Имейл не беше изпратен.", error);
+        });
 
-    }
+      }
+
   });
 </script>
 
