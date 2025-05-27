@@ -239,12 +239,23 @@
     
       </div>
     </div>
-    <div class="lower-btn">
-      <div class="call-button-mobile text-center mt-6 mb-5">
-        <a href="tel:+359877077969" class="btn btn-success btn-lg shadow">
-            📞 Поръчай по телефона
-        </a>
+    
+      <div class="text-center mb-4 px-2">
+        <div class="alert alert-warning d-inline-block fw-semibold" style="font-size: 1.25rem; max-width: 700px;">
+          <span>⏰ Поръчки за храна се приемат до <strong>11:00 часа на обяд</strong>!</span><br>
+          <span>🚗 Доставките в града се извършват с такси, като стойността на доставката е <strong>5 лв.</strong></span>
+        </div>
       </div>
+      <div class="lower-btn"></div>
+      <div class="call-button-mobile text-center mt-6 mb-5">
+        <a href="tel:+359877077969"
+           class="btn btn-success btn-lg shadow"
+           id="call-btn">
+          📞 Поръчай по телефона
+        </a>
+
+      </div>
+
       <div class="call-button-mobile text-center mt-6 mb-5">
         <a href="reservation.html" class="btn btn-danger btn-lg shadow">
           🎉 Направи резервация
@@ -252,7 +263,19 @@
       </div>
       
     </div>
-   
+    <div id="phone-popup" class="popup-overlay" style="display: none;">
+      <div class="phone-popup-content">
+        <span class="close-btn">&times;</span>
+        <div class="mb-2 fw-bold" style="letter-spacing: 1px;">Обадете се за поръчка:</div>
+        <div style="font-size: 1.8rem; letter-spacing: 2px; font-family: 'Fredoka',sans-serif;" class="fw-bold text-dark mb-2">
+          <span style="color:#d81b60; font-size: 1.4em;">&#128222;</span> <strong>0877 077 969</strong>
+        </div>
+        <p class="mt-2 mb-1 text-muted" style="font-size: .97rem;">Моля, наберете номера от вашия телефон.</p>
+      </div>
+    </div>
+    
+    
+    
   </main>
 
   <footer id="footer" class="footer dark-background">
@@ -622,6 +645,32 @@
         if (e.target === allergenPopup) allergenPopup.style.display = 'none';
       });
     }
+    document.addEventListener('DOMContentLoaded', function () {
+      const callBtn = document.getElementById('call-btn');
+      const phonePopup = document.getElementById('phone-popup');
+      const closePhonePopup = phonePopup?.querySelector('.close-btn');
+
+      function isMobileDevice() {
+        return /android|iphone|ipad|ipod|opera mini|iemobile|mobile/i.test(navigator.userAgent);
+      }
+
+      if (callBtn) {
+        callBtn.addEventListener('click', function (e) {
+          if (!isMobileDevice()) {
+            e.preventDefault();
+            phonePopup.style.display = 'block';
+          }
+          // На мобилно не правим нищо – работи си като tel: линк
+        });
+      }
+
+      if (phonePopup && closePhonePopup) {
+        closePhonePopup.addEventListener('click', () => phonePopup.style.display = 'none');
+        phonePopup.addEventListener('click', (e) => {
+          if (e.target === phonePopup) phonePopup.style.display = 'none';
+        });
+      }
+    });
 
   </script>
   
