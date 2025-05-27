@@ -670,7 +670,16 @@
           if (e.target === phonePopup) phonePopup.style.display = 'none';
         });
       }
-    });
+      const salatiBtn = document.querySelector('button[onclick*="salati"]');
+
+      // При превключване на таба "Основно меню"
+      const lunchTab = document.querySelector('a[data-bs-target="#menu-lunch"]');
+      if (lunchTab && salatiBtn) {
+        lunchTab.addEventListener('shown.bs.tab', function () {
+          loadSubcategory('salati', salatiBtn);
+        });
+      }
+        });
 
   </script>
   
