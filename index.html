@@ -16,6 +16,8 @@
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Amatic+SC:wght@400;700&display=swap"
     rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
 <!-- OG image за Facebook, Google, и др. -->
   <meta property="og:image" content="https://vkusnobg.com/assets/img/favicon.png">
   <meta property="og:image:width" content="1200">
@@ -387,39 +389,113 @@
           .eq('is_visible', true)
           .order('sort_order', { ascending: true }); // ← добави това
 
-  
           container.innerHTML = '';
           if (data.length === 0) {
             showEmptyMessage(container);
             return;
           }
 
-  
         if (error) {
           console.error(`Грешка при зареждане на ${category}:`, error);
           return;
         }
-  
-        data.sort((a, b) => {
-          if (a.is_new && !b.is_new) return -1;
-          if (!a.is_new && b.is_new) return 1;
-          return a.sort_order - b.sort_order;
-        });
 
-  
+        // Soups always on top, desserts always at the bottom (only for Obedno menu)
+        if (category === 'obedno-menu') {
+          const soups = data.filter(item => item.is_new);
+          const desserts = data.filter(item => item.is_dessert);
+          const dishes = data.filter(item => !item.is_new && !item.is_dessert);
+
+          container.innerHTML = '';
+
+          if (soups.length) {
+            container.innerHTML += `<div class="col-12"><h2 class="menu-subcat-title soups text-center display-4">СУПИ</h2></div>`;
+            soups.forEach(item => { container.innerHTML += `
+              <div class="col-lg-4 menu-item position-relative">
+                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
+                <h4 class="text-center fs-3 mt-2 mb-2">${item.name}</h4>
+                <div>
+                  <p class="ingredients text-center fs-5">${item.ingredients || ''}</p>
+                  <p class="card-text text-center fs-5">${item.weight || ''} гр.</p>
+                  <p class="card-text allergens-icons text-center fs-5">
+                    ${Array.isArray(item.allergens) && item.allergens.length > 0
+                      ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                      : '<span class="text-muted fst-italic">Няма алергени</span>'}
+                  </p>
+                </div>
+                <p class="price text-center fw-bold fs-2" style="color:#d81b60;">${item.price.toFixed(2)} лв.</p>
+              </div>`; });
+          }
+          if (dishes.length) {
+            container.innerHTML += `<div class="col-12"><h2 class="menu-subcat-title dishes text-center display-4">ЯСТИЯ</h2></div>`;
+            dishes.forEach(item => { container.innerHTML += `
+              <div class="col-lg-4 menu-item position-relative">
+                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
+                <h4 class="text-center fs-3 mt-2 mb-2">${item.name}</h4>
+                <div>
+                  <p class="ingredients text-center fs-5">${item.ingredients || ''}</p>
+                  <p class="card-text text-center fs-5">${item.weight || ''} гр.</p>
+                  <p class="card-text allergens-icons text-center fs-5">
+                    ${Array.isArray(item.allergens) && item.allergens.length > 0
+                      ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                      : '<span class="text-muted fst-italic">Няма алергени</span>'}
+                  </p>
+                </div>
+                <p class="price text-center fw-bold fs-2" style="color:#d81b60;">${item.price.toFixed(2)} лв.</p>
+              </div>`; });
+          }
+          if (desserts.length) {
+            container.innerHTML += `<div class="col-12"><h2 class="menu-subcat-title desserts text-center display-4">ДЕСЕРТИ</h2></div>`;
+            desserts.forEach(item => { container.innerHTML += `
+              <div class="col-lg-4 menu-item position-relative">
+                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
+                <h4 class="text-center fs-3 mt-2 mb-2">${item.name}</h4>
+                <div>
+                  <p class="ingredients text-center fs-5">${item.ingredients || ''}</p>
+                  <p class="card-text text-center fs-5">${item.weight || ''} гр.</p>
+                  <p class="card-text allergens-icons text-center fs-5">
+                    ${Array.isArray(item.allergens) && item.allergens.length > 0
+                      ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                      : '<span class="text-muted fst-italic">Няма алергени</span>'}
+                  </p>
+                </div>
+                <p class="price text-center fw-bold fs-2" style="color:#e75480;">${item.price.toFixed(2)} лв.</p>
+              </div>`; });
+          }
+          return;
+        } else if (category === 'zakuski') {
+          container.innerHTML = '';
+          data.forEach(item => {
+            container.innerHTML += `
+              <div class="col-lg-4 menu-item position-relative">
+                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
+                <h4 class="text-center mt-2 mb-2">${item.name}</h4>
+                <div>
+                  <p class="ingredients text-center">${item.ingredients || ''}</p>
+                  <p class="card-text text-center">${item.weight || ''} гр.</p>
+                  <p class="card-text allergens-icons text-center">
+                    ${Array.isArray(item.allergens) && item.allergens.length > 0
+                      ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
+                      : '<span class="text-muted fst-italic">Няма алергени</span>'}
+                  </p>
+                </div>
+                <p class="price text-center fw-bold fs-4" style="color:#d81b60;">${item.price.toFixed(2)} лв.</p>
+              </div>
+            `;
+          });
+          return;
+        } else {
+          data.sort((a, b) => {
+            if (a.is_new && !b.is_new) return -1;
+            if (!a.is_new && b.is_new) return 1;
+            return a.sort_order - b.sort_order;
+          });
+        }
+
         data.forEach(item => {
           console.log('🔍 Проверка алергени за', item.name, item.allergens);
           container.innerHTML += `
             <div class="col-lg-4 menu-item position-relative">
-              ${item.is_new ? `
-                <div class="position-absolute top-0 start-0 bg-danger px-3 py-1 text-white fw-bold rounded-pill small"
-                  style="z-index: 2; margin-top: -20px; margin-left: -10px;">
-                  Супи</div>` : ''}
-              <div>
-                <img src="${item.image_url}" class="menu-img img-fluid rounded-4" alt="${item.name}">
-
-              </div>
-              <h4>${item.name}</h4>
               ${item.category === 'specialiteti' && item.subcategory === 'napitki'
                 ? `
                   <div>
