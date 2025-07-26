@@ -345,6 +345,7 @@
       "лупина": "🌿",
       "мекотели": "🐚"
     };
+    const exchangeRate = 1.95583;
 
     document.addEventListener('DOMContentLoaded', async function () {
       // Скрий бутоните за напитки при първоначално зареждане
@@ -423,7 +424,10 @@
                       : '<span class="text-muted fst-italic">Няма алергени</span>'}
                   </p>
                 </div>
-                <p class="price text-center fw-bold fs-2" style="color:#d81b60;">${item.price.toFixed(2)} лв.</p>
+                <p class="price text-center fw-bold fs-2">
+  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
+</p>
+
               </div>`; });
           }
           if (dishes.length) {
@@ -441,7 +445,10 @@
                       : '<span class="text-muted fst-italic">Няма алергени</span>'}
                   </p>
                 </div>
-                <p class="price text-center fw-bold fs-2" style="color:#d81b60;">${item.price.toFixed(2)} лв.</p>
+                <p class="price text-center fw-bold fs-2">
+  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
+</p>
+
               </div>`; });
           }
           if (desserts.length) {
@@ -459,7 +466,10 @@
                       : '<span class="text-muted fst-italic">Няма алергени</span>'}
                   </p>
                 </div>
-                <p class="price text-center fw-bold fs-2" style="color:#e75480;">${item.price.toFixed(2)} лв.</p>
+                <p class="price text-center fw-bold fs-2">
+  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
+</p>
+
               </div>`; });
           }
           return;
@@ -479,7 +489,10 @@
                       : '<span class="text-muted fst-italic">Няма алергени</span>'}
                   </p>
                 </div>
-                <p class="price text-center fw-bold fs-4" style="color:#d81b60;">${item.price.toFixed(2)} лв.</p>
+                <p class="price text-center fw-bold fs-2">
+  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
+</p>
+
               </div>
             `;
           });
@@ -525,7 +538,10 @@
                 `
               }
 
-              <p class="price">${item.price.toFixed(2)} лв.</p>
+              <p class="price text-center fw-bold fs-2">
+  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
+</p>
+
             </div>
           `;
         });
@@ -659,7 +675,10 @@
 
 
               `}
-              <p class="price">${item.price.toFixed(2)} лв.</p>
+              <p class="price text-center fw-bold fs-2">
+  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
+</p>
+
             </div>
           `;
         });
@@ -756,6 +775,12 @@
         });
       }
         });
+
+    function formatEuroPrice(bgnPrice) {
+      const eur = bgnPrice / exchangeRate;
+      return `<span class="euro-price fw-bold" style="color:#d81b60;">/ €${eur.toFixed(2)}</span>`;
+    }
+    
 
   </script>
   
