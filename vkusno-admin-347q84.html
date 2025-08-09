@@ -214,10 +214,9 @@
         }
       }
 
-      function filterCards(filter) {
-        currentFilter = filter; // 🟢 Запомняме избрания филтър
+      function filterCards(filter, { silent = false } = {}) {
+        currentFilter = filter;
 
-         // 🔁 Обнови стила на активния бутон
         const allButtons = document.querySelectorAll('#filter-buttons button');
         allButtons.forEach(btn => btn.classList.remove('active'));
         const activeBtn = Array.from(allButtons).find(btn =>
@@ -225,28 +224,27 @@
         );
         if (activeBtn) activeBtn.classList.add('active');
 
-        // 👇 Филтриране както досега
         const cards = document.querySelectorAll('#menu-list .card');
         const filterLower = filter.toLowerCase();
-
         cards.forEach(card => {
           const name = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
           const subcat = card.getAttribute('data-subcat')?.toLowerCase() || '';
           const category = card.getAttribute('data-category')?.toLowerCase() || '';
           const drinkType = card.getAttribute('data-drink-type')?.toLowerCase() || '';
-
           const matches =
             filterLower === '' ||
             name.includes(filterLower) ||
             subcat.includes(filterLower) ||
             category.includes(filterLower) ||
             drinkType === filterLower;
-
           card.parentElement.style.display = matches ? 'block' : 'none';
         });
-
-        document.getElementById('menu-list').scrollIntoView({ behavior: 'smooth' });
+      
+        if (!silent) {
+          document.getElementById('menu-list').scrollIntoView({ behavior: 'smooth' });
+        }
       }
+
 
       function renderCard(item) {
         console.log("🧩 Визуализиране на ястие:", item.name, "Алергени:", item.allergens);
@@ -308,34 +306,44 @@
       }
 
       async function moveItem(id, direction) {
+        // 🔹 Запази позицията на скрола
+        const prevScroll = window.scrollY;
+            
         const { data: currentItem, error } = await supabase.from('menu').select('*').eq('id', id).single();
         if (error) return console.error('Грешка:', error);
-
+            
         const { category, subcategory, drink_type, sort_order } = currentItem;
-
+            
         let query = supabase.from('menu').select('*')
           .eq('category', category)
           .eq('subcategory', subcategory);
-
+            
         if (subcategory === 'napitki' && drink_type)
           query = query.eq('drink_type', drink_type);
-
+            
         const { data: items } = await query.order('sort_order', { ascending: true });
-
+            
         const index = items.findIndex(item => item.id === id);
         const swapIndex = index + direction;
-
+            
         if (swapIndex < 0 || swapIndex >= items.length) return;
-
+            
         const otherItem = items[swapIndex];
-
+            
         await supabase.from('menu').update({ sort_order: otherItem.sort_order }).eq('id', currentItem.id);
         await supabase.from('menu').update({ sort_order: currentItem.sort_order }).eq('id', otherItem.id);
-
+            
         await fetchMenu();
-        filterCards(currentFilter); // 🟢 възстанови филтъра след местене
-        console.log('Алергени:', item.allergens);
+            
+        // 🔹 Върни активния филтър и търсене
+        filterCards(currentFilter || '', { silent: true });
+        const si = document.getElementById('search-input');
+        if (si && si.value) si.dispatchEvent(new Event('input'));
+            
+        // 🔹 Върни скрола
+        window.scrollTo(0, prevScroll);
       }
+
       const allergensList = [
         "глутен", "ракообразни", "яйца", "риба", "фъстъци", "соя",
         "мляко", "ядки", "целина", "синап", "сусам",
@@ -511,6 +519,11 @@
         document.getElementById('is_dessert').checked = false;
         document.querySelector('#menu-form button[type="submit"]').textContent = 'Добави ястието';
         fetchMenu();
+        // след fetchMenu();
+        filterCards(currentFilter || '', { silent: true });
+        const si = document.getElementById('search-input');
+        if (si && si.value) si.dispatchEvent(new Event('input'));
+
 
       });
     
@@ -561,9 +574,26 @@
       };
     
       async function toggleVisibility(id, show) {
+        // 1) запази текущата позиция
+        const prevScroll = window.scrollY;
+
+        const searchValue = document.getElementById('search-input')?.value || '';
         await supabase.from('menu').update({ is_visible: show }).eq('id', id);
-        fetchMenu();
+        await fetchMenu();
+
+        // 2) върни активния филтър и търсене
+        filterCards(currentFilter || '', { silent: true });
+        if (searchValue) {
+          const si = document.getElementById('search-input');
+          si.value = searchValue;
+          si.dispatchEvent(new Event('input'));
+        }
+      
+        // 3) върни скрола
+        window.scrollTo(0, prevScroll);
       }
+
+
     
       async function fetchMenu() {
         const { data, error } = await supabase.from('menu').select('*');
@@ -585,6 +615,13 @@
           cardWrapper.innerHTML = renderCard(item);
           container.appendChild(cardWrapper);
         });
+        // възстанови активния филтър/търсене след рендър
+        if (typeof currentFilter !== 'undefined') {
+          filterCards(currentFilter || '', { silent: true });
+        }
+        const q = document.getElementById('search-input')?.value;
+        if (q) document.getElementById('search-input').dispatchEvent(new Event('input'));
+
       }
 
     
