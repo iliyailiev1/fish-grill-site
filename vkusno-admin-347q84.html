@@ -180,10 +180,15 @@
         return bgn / exchangeRate;
       }
 
-      const supabase = window.supabase.createClient(
+// ✅ Създава клиент само ако още няма такъв
+      window._sb = window._sb || window.supabase.createClient(
         'https://huullvfombogfhmssqrc.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWxsdmZvbWJvZ2ZobXNzcXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDIyNzAsImV4cCI6MjA2MDQxODI3MH0.7UGhnlUl3FkTQBW9YNTAvbrv5v3GWuRawGlZJAEg5UY'
       );
+
+      // ✅ От тук нататък навсякъде използвай sb, не supabase
+      const sb = window._sb;
+
 
     
       function getVolumeUnitText() {
@@ -255,17 +260,28 @@
           document.getElementById('menu-list').scrollIntoView({ behavior: 'smooth' });
         }
       }
+      window.filterCards = filterCards;
 
 
       function renderCard(item) {
         console.log("🧩 Визуализиране на ястие:", item.name, "Алергени:", item.allergens);
+        const safePrice = Number(item.price);
+        const eur = Number.isFinite(safePrice) ? bgnToEur(safePrice).toFixed(2) : '0.00';
+        const bgn = Number.isFinite(safePrice) ? safePrice.toFixed(2) : '0.00';
 
         return `
           <div class="card position-relative h-100" data-subcat="${item.subcategory || ''}" data-category="${item.category}" data-drink-type="${item.drink_type || ''}">
 
             ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">Супи</div>' : ''}
             ${item.is_dessert ? '<div class="position-absolute top-0 start-0" style="background: #ffb6c1; padding: 2px 8px; color: #222; font-weight: bold; border-radius: 0 0.5rem 0.5rem 0; font-size: 0.85rem;">Десерти</div>' : ''}
-            <img src="${item.image_url || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${item.name}">
+            <img
+              src="${item.image_url || 'https://via.placeholder.com/300'}"
+              class="card-img-top"
+              alt="${item.name}"
+              loading="lazy"
+              onerror="console.error('❌ IMG FAIL:', this.src); this.src='https://via.placeholder.com/300';"
+            />
+
             <div class="card-body">
               <h5 class="card-title">${item.name}</h5>
               ${item.subcategory === 'napitki'
@@ -290,7 +306,8 @@
 
 
                 `}
-              <p class="card-text fw-bold">€${bgnToEur(item.price).toFixed(2)} / ${item.price.toFixed(2)} лв.</p>
+              <p class="card-text fw-bold">€${eur} / ${bgn} лв.</p>
+
               <p class="text-muted">Категория: ${item.category}</p>
               ${item.subcategory ? `<p class="text-muted">Подкатегория: ${item.subcategory}</p>` : ''}
               <button class="btn btn-secondary btn-sm mt-2 me-2" onclick="editItem('${item.id}')">Редактирай</button>
@@ -308,6 +325,7 @@
       }
       
 
+
       async function moveUp(id) {
         await moveItem(id, -1);
       }
@@ -320,12 +338,12 @@
         // 🔹 Запази позицията на скрола
         const prevScroll = window.scrollY;
             
-        const { data: currentItem, error } = await supabase.from('menu').select('*').eq('id', id).single();
+        const { data: currentItem, error } = await sb.from('menu').select('*').eq('id', id).single();
         if (error) return console.error('Грешка:', error);
             
         const { category, subcategory, drink_type, sort_order } = currentItem;
             
-        let query = supabase.from('menu').select('*')
+        let query = sb.from('menu').select('*')
           .eq('category', category)
           .eq('subcategory', subcategory);
             
@@ -341,8 +359,8 @@
             
         const otherItem = items[swapIndex];
             
-        await supabase.from('menu').update({ sort_order: otherItem.sort_order }).eq('id', currentItem.id);
-        await supabase.from('menu').update({ sort_order: currentItem.sort_order }).eq('id', otherItem.id);
+        await sb.from('menu').update({ sort_order: otherItem.sort_order }).eq('id', currentItem.id);
+        await sb.from('menu').update({ sort_order: currentItem.sort_order }).eq('id', otherItem.id);
             
         await fetchMenu();
             
@@ -355,6 +373,8 @@
         window.scrollTo(0, prevScroll);
       }
 
+
+
       const allergensList = [
         "глутен", "ракообразни", "яйца", "риба", "фъстъци", "соя",
         "мляко", "ядки", "целина", "синап", "сусам",
@@ -363,24 +383,36 @@
 
       function renderAllergenCheckboxes(selected = []) {
         const container = document.getElementById('allergens-container');
-        container.innerHTML = '<label class="form-label">Алергени</label><br>';
-      
-        allergensList.forEach(a => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.name = 'allergens';
-          checkbox.value = a;
-          checkbox.classList.add('form-check-input', 'me-1');
-          if (selected.includes(a)) checkbox.checked = true;
+
+        container.innerHTML = `
+          <label class="form-label">Алергени</label>
+          <div class="row g-2" id="allergen-grid"></div>
+        `;
+
+        const grid = container.querySelector('#allergen-grid');
+
+        allergensList.forEach((a, i) => {
+          const id = `allergen_${i}`;
         
-          const label = document.createElement('label');
-          label.classList.add('form-check-label', 'me-3');
-          label.appendChild(checkbox);
-          label.append(` ${a}`);
+          const col = document.createElement('div');
+          col.className = 'col-6 col-md-4';
         
-          container.appendChild(label);
+          col.innerHTML = `
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="${id}" name="allergens" value="${a}">
+              <label class="form-check-label" for="${id}">
+                ${allergenEmojiMap[a] || ''} ${a}
+              </label>
+            </div>
+          `;
+          
+          const cb = col.querySelector('input');
+          cb.checked = selected.includes(a);
+          
+          grid.appendChild(col);
         });
       }
+
 
       renderAllergenCheckboxes(); // за първоначално зареждане
 
@@ -431,9 +463,9 @@
         let image_url = '';
         if (file) {
           const filePath = `${Date.now()}_${file.name}`;
-          const { error: uploadError } = await supabase.storage.from('menu-images').upload(filePath, file);
+          const { error: uploadError } = await sb.storage.from('menu-images').upload(filePath, file);
           if (uploadError) return alert('Грешка при качване: ' + uploadError.message);
-          const { data: urlData } = supabase.storage.from('menu-images').getPublicUrl(filePath);
+          const { data: urlData } = sb.storage.from('menu-images').getPublicUrl(filePath);
           image_url = urlData.publicUrl;
         } else if (editingItemId && currentImageUrl) {
           image_url = currentImageUrl; // 🟢 използваме старата снимка
@@ -482,7 +514,7 @@
         const status = document.getElementById('status-message');
     
         if (editingItemId) {
-          const { error } = await supabase.from('menu').update(dishData).eq('id', editingItemId);
+          const { error } = await sb.from('menu').update(dishData).eq('id', editingItemId);
           if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при редакция</div>');
           status.innerHTML = '<div class="alert alert-success">✅ Промените са запазени!</div>';
         } else {
@@ -513,7 +545,7 @@
             dishData.sort_order = 1; // обнови и в обекта
           }
         
-          const { error } = await supabase.from('menu').insert([dishData]);
+          const { error } = await sb.from('menu').insert([dishData]);
           if (error) return (status.innerHTML = '<div class="alert alert-danger">Грешка при добавяне</div>');
           status.innerHTML = '<div class="alert alert-success">✅ Добавено успешно!</div>';
         }
@@ -544,7 +576,7 @@
         currentImageUrl = '';
         
 
-        const { data, error } = await supabase.from('menu').select('*').eq('id', id).single();
+        const { data, error } = await sb.from('menu').select('*').eq('id', id).single();
         currentImageUrl = data.image_url || '';
         document.getElementById('current-image').src = currentImageUrl;
         document.getElementById('current-image-preview').style.display = currentImageUrl ? 'block' : 'none';
@@ -563,7 +595,9 @@
         editingItemId = id;
         document.getElementById('name').value = data.name;
         document.getElementById('ingredients').value = data.ingredients || '';
-        document.getElementById('price').value = bgnToEur(data.price).toFixed(2);
+        const p = Number(data.price);
+        document.getElementById('price').value = Number.isFinite(p) ? bgnToEur(p).toFixed(2) : '';
+
         document.getElementById('weight').value = data.weight || '';
         document.getElementById('category').value = data.category;
         document.getElementById('is_new').checked = data.is_new;
@@ -591,7 +625,7 @@
         const prevScroll = window.scrollY;
 
         const searchValue = document.getElementById('search-input')?.value || '';
-        await supabase.from('menu').update({ is_visible: show }).eq('id', id);
+        await sb.from('menu').update({ is_visible: show }).eq('id', id);
         await fetchMenu();
 
         // 2) върни активния филтър и търсене
@@ -606,10 +640,12 @@
         window.scrollTo(0, prevScroll);
       }
 
-
+      window.toggleVisibility = toggleVisibility;
+      window.moveUp = moveUp;
+      window.moveDown = moveDown;
     
       async function fetchMenu() {
-        const { data, error } = await supabase.from('menu').select('*');
+        const { data, error } = await sb.from('menu').select('*');
         const container = document.getElementById('menu-list');
         container.innerHTML = '';
         if (error) {
@@ -620,7 +656,8 @@
         data.sort((a, b) => a.sort_order - b.sort_order);
 
         data.forEach(item => {
-          console.log("📥 Заредени ястия:", data);
+          console.log("📥 Заредено ястие:", item.name, item.image_url, item.allergens);
+
 
           const cardWrapper = document.createElement('div');
           cardWrapper.className = 'col-md-4 mb-4';
