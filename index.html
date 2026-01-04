@@ -254,7 +254,7 @@
       <div class="text-center mb-4 px-2">
         <div class="alert alert-warning d-inline-block fw-semibold" style="font-size: 1.25rem; max-width: 700px;">
           <span>⏰ Поръчки за храна се приемат до <strong>10:30 часа на обяд</strong>!</span><br>
-          <span>🚗 Доставките в града се извършват с такси, като стойността на доставката е <strong>5 лв / 2.50 €.</strong></span>
+          <span>🚗 Доставките в града се извършват с такси, като стойността на доставката е <strong>2.50 € / 5 лв.</strong></span>
         </div>
       </div>
       <div class="lower-btn"></div>
@@ -433,9 +433,10 @@
                       : '<span class="text-muted fst-italic">Няма алергени</span>'}
                   </p>
                 </div>
-                <p class="price text-center fw-bold fs-2">
-  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
-</p>
+                 <p class="price text-center fw-bold fs-2">
+                  ${formatEuroFirst(item.price)}${formatBgnPriceFromEuroFirst(item.price)}
+                </p>
+
 
               </div>`; });
           }
@@ -454,9 +455,10 @@
                       : '<span class="text-muted fst-italic">Няма алергени</span>'}
                   </p>
                 </div>
-                <p class="price text-center fw-bold fs-2">
-  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
-</p>
+                 <p class="price text-center fw-bold fs-2">
+                  ${formatEuroFirst(item.price)}${formatBgnPriceFromEuroFirst(item.price)}
+                </p>
+
 
               </div>`; });
           }
@@ -476,8 +478,9 @@
                   </p>
                 </div>
                 <p class="price text-center fw-bold fs-2">
-  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
-</p>
+                  ${formatEuroFirst(item.price)}${formatBgnPriceFromEuroFirst(item.price)}
+                </p>
+
 
               </div>`; });
           }
@@ -499,8 +502,9 @@
                   </p>
                 </div>
                 <p class="price text-center fw-bold fs-2">
-  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
-</p>
+                 ${formatEuroFirst(item.price)}${formatBgnPriceFromEuroFirst(item.price)}
+                </p>
+
 
               </div>
             `;
@@ -547,9 +551,10 @@
                 `
               }
 
-              <p class="price text-center fw-bold fs-2">
-  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
-</p>
+            <p class="price text-center fw-bold fs-2">
+              ${formatEuroFirst(item.price)}${formatBgnPriceFromEuroFirst(item.price)}
+            </p>
+
 
             </div>
           `;
@@ -685,8 +690,9 @@
 
               `}
               <p class="price text-center fw-bold fs-2">
-  <span style="color:#d81b60;">${item.price.toFixed(2)} лв.</span> ${formatEuroPrice(item.price)}
-</p>
+                ${formatEuroFirst(item.price)}${formatBgnPriceFromEuroFirst(item.price)}
+              </p>
+
 
             </div>
           `;
@@ -785,10 +791,15 @@
       }
         });
 
-    function formatEuroPrice(bgnPrice) {
-      const eur = bgnPrice / exchangeRate;
-      return `<span class="euro-price fw-bold" style="color:#d81b60;">/ €${eur.toFixed(2)}</span>`;
-    }
+        function formatBgnPriceFromEuroFirst(bgnPrice) {
+          return `<span class="euro-price fw-bold" style="color:#d81b60;"> / ${bgnPrice.toFixed(2)} лв.</span>`;
+        }
+
+        function formatEuroFirst(bgnPrice) {
+          const eur = bgnPrice / exchangeRate;
+          return `<span class="fw-bold" style="color:#d81b60;">€${eur.toFixed(2)}</span>`;
+        }
+
     
 
   </script>
