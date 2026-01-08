@@ -6,10 +6,78 @@
   <title>Admin Menu Editor</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .allergens-icons {
-      font-size: 1.2rem;
-      margin-top: 5px;
+/* Desktop UX layout */
+    .admin-grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 24px;
+      align-items:start;
     }
+
+    .admin-left{
+      position: sticky;
+      top: 24px;
+      align-self: start;
+    }
+
+    .admin-left form{
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    }
+
+    .admin-right{
+      min-width: 0;
+    }
+
+    /* ако прозорецът е по-тесен (например split screen), да падне на 1 колона */
+    @media (max-width: 1100px){
+      .admin-grid{ grid-template-columns: 1fr; }
+      .admin-left{ position: static; }
+    }
+    .admin-toolbar{
+      position: sticky;
+      top: 24px;
+      z-index: 10;
+      background: rgba(248,249,250,.92); /* bg-light с лек прозрачен ефект */
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    #menu-list .card{
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    
+    #menu-list .card-img-top{
+      height: 180px;
+      object-fit: cover;
+    }
+    
+    #menu-list .card-body{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    #menu-list .card-body .btn{
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+    
+    #menu-list .card-body .btn-group-actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
   </style>
   
 </head>
@@ -111,10 +179,10 @@
       
       <button type="submit" class="btn btn-primary">Добави ястието</button>
     </form>
-    <div class="mb-4">
-      <input type="text" id="search-input" class="form-control" placeholder="🔍 Търси ястие по име...">
-    </div>
-    <div class="mb-3">
+    <div class="admin-toolbar">
+      <div class="mb-3">
+        <input type="text" id="search-input" class="form-control" placeholder="🔍 Търси ястие по име...">
+      </div>
       <div class="btn-group flex-wrap" id="filter-buttons">
         <button class="btn btn-outline-secondary btn-sm" onclick="filterCards('')">Покажи всички</button>
     
@@ -441,11 +509,12 @@
         const drink_type = isNapitki ? document.getElementById('drink_type').value : null;
         let sort_order = 1;
 
-        let query = supabase
+        let query = sb
           .from('menu')
           .select('sort_order')
           .eq('category', category)
           .eq('subcategory', subcategory);
+
 
         if (subcategory === 'napitki' && drink_type) {
           query = query.eq('drink_type', drink_type);
@@ -519,7 +588,7 @@
           status.innerHTML = '<div class="alert alert-success">✅ Промените са запазени!</div>';
         } else {
           if (is_new) {
-            let reorderQuery = supabase
+            let reorderQuery = sb
               .from('menu')
               .select('id, sort_order')
               .eq('category', category)
@@ -534,10 +603,11 @@
           
             if (!reorderError && others.length > 0) {
               for (const item of others) {
-                await supabase
+                await sb
                   .from('menu')
                   .update({ sort_order: item.sort_order + 1 })
                   .eq('id', item.id);
+
               }
             }
           
