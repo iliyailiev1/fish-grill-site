@@ -77,6 +77,27 @@
       gap: 8px;
       margin-top: 8px;
     }
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .card-actions .btn {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+    .card[data-visible="false"] {
+      opacity: 0.6;
+    }
+
+    .card-hidden {
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
 
   </style>
   
@@ -321,7 +342,8 @@
             subcat.includes(filterLower) ||
             category.includes(filterLower) ||
             drinkType === filterLower;
-          card.parentElement.style.display = matches ? 'block' : 'none';
+          card.parentElement.classList.toggle('card-hidden', !matches);
+
         });
       
         if (!silent) {
@@ -338,7 +360,12 @@
         const bgn = Number.isFinite(safePrice) ? safePrice.toFixed(2) : '0.00';
 
         return `
-          <div class="card position-relative h-100" data-subcat="${item.subcategory || ''}" data-category="${item.category}" data-drink-type="${item.drink_type || ''}">
+          <div class="card position-relative h-100"
+     data-visible="${item.is_visible}"
+     data-subcat="${item.subcategory || ''}"
+     data-category="${item.category}"
+     data-drink-type="${item.drink_type || ''}">
+
 
             ${item.is_new ? '<div class="position-absolute top-0 end-0 bg-warning px-2 py-1 text-dark fw-bold rounded-start small">Супи</div>' : ''}
             ${item.is_dessert ? '<div class="position-absolute top-0 start-0" style="background: #ffb6c1; padding: 2px 8px; color: #222; font-weight: bold; border-radius: 0 0.5rem 0.5rem 0; font-size: 0.85rem;">Десерти</div>' : ''}
@@ -352,42 +379,71 @@
 
             <div class="card-body">
               <h5 class="card-title">${item.name}</h5>
+
               ${item.subcategory === 'napitki'
-              ? `
-                <p class="card-text fw-bold">${item.volume || ''} ${item.volume_unit || ''}</p>
-                <p class="card-text text-muted fst-italic">
-                  ${item.drink_type === 'alkoholna' ? '🍷 Алкохолна напитка' 
-                    : item.drink_type === 'bezalkoholna' ? '🥤 Безалкохолна напитка'
-                    : '☕ Топла напитка'}
-                </p>
-              `
+                ? `
+                  <p class="card-text fw-bold mb-1">
+                    ${item.volume || ''} ${item.volume_unit || ''}
+                  </p>
+                  <p class="card-text text-muted fst-italic mb-2">
+                    ${
+                      item.drink_type === 'alkoholna'
+                        ? '🍷 Алкохолна напитка'
+                        : item.drink_type === 'bezalkoholna'
+                        ? '🥤 Безалкохолна напитка'
+                        : '☕ Топла напитка'
+                    }
+                  </p>
+                `
                 : `
-                  <p class="card-text">${item.ingredients || ''}</p>
-                  <p class="card-text">${item.weight || ''} гр.</p>
-                  <p class="card-text allergens-icons">
+                  <p class="card-text mb-1">${item.ingredients || ''}</p>
+                  <p class="card-text mb-1">${item.weight || ''} гр.</p>
+                  <p class="card-text allergens-icons mb-2">
                     ${
                       Array.isArray(item.allergens) && item.allergens.length > 0
                         ? item.allergens.map(a => allergenEmojiMap[a] || '').join(' ')
                         : '<span class="text-muted fst-italic">Няма алергени</span>'
                     }
                   </p>
-
-
-                `}
-              <p class="card-text fw-bold">€${eur} / ${bgn} лв.</p>
-
-              <p class="text-muted">Категория: ${item.category}</p>
-              ${item.subcategory ? `<p class="text-muted">Подкатегория: ${item.subcategory}</p>` : ''}
-              <button class="btn btn-secondary btn-sm mt-2 me-2" onclick="editItem('${item.id}')">Редактирай</button>
-              ${item.is_visible === false
-                ? `<p class="text-danger"><strong>❌ Скрито</strong></p>
-                   <button class="btn btn-success btn-sm mt-2" onclick="toggleVisibility('${item.id}', true)">Покажи отново</button>`
-                : `<button class="btn btn-outline-danger btn-sm mt-2 me-2" onclick="toggleVisibility('${item.id}', false)">Скрий</button>`
+                `
               }
-              <button class="btn btn-sm btn-outline-secondary mt-2 me-2" onclick="moveUp('${item.id}')">⬆️</button>
-              <button class="btn btn-sm btn-outline-secondary mt-2" onclick="moveDown('${item.id}')">⬇️</button>
 
+              <p class="card-text fw-bold mb-1">€${eur} / ${bgn} лв.</p>
+
+              <p class="text-muted mb-0">Категория: ${item.category}</p>
+              ${item.subcategory ? `<p class="text-muted mb-2">Подкатегория: ${item.subcategory}</p>` : ''}
+
+              <div class="card-actions">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  onclick="editItem('${item.id}')"
+                >
+                  ✏️ Редактирай
+                </button>
+              
+                ${
+                  item.is_visible === false
+                    ? `
+                      <span class="text-danger small fw-bold">❌ Скрито</span>
+                      <button
+                        class="btn btn-success btn-sm"
+                        onclick="toggleVisibility('${item.id}', true)"
+                      >
+                        👁️ Покажи
+                      </button>
+                    `
+                    : `
+                      <button
+                        class="btn btn-outline-danger btn-sm"
+                        onclick="toggleVisibility('${item.id}', false)"
+                      >
+                        🙈 Скрий
+                      </button>
+                    `
+                }
+              </div>
             </div>
+
           </div>
         `;
       }
@@ -725,6 +781,8 @@
 
         data.sort((a, b) => a.sort_order - b.sort_order);
 
+
+
         data.forEach(item => {
           console.log("📥 Заредено ястие:", item.name, item.image_url, item.allergens);
 
@@ -754,7 +812,10 @@
 
         allCards.forEach(card => {
           const title = card.querySelector('.card-title').textContent.toLowerCase();
-          card.parentElement.style.display = title.includes(query) ? 'block' : 'none';
+          card.parentElement.classList.toggle(
+            'card-hidden',
+            !title.includes(query)
+          );
         });
       });
 
