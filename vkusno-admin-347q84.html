@@ -94,10 +94,8 @@
     }
 
     .card-hidden {
-  visibility: hidden;
-  pointer-events: none;
-  opacity: 0;
-}
+      display: none
+    }
 
   </style>
   
@@ -204,9 +202,7 @@
       <div class="mb-3">
         <input type="text" id="search-input" class="form-control" placeholder="🔍 Търси ястие по име...">
       </div>
-      <div class="btn-group flex-wrap" id="filter-buttons">
-        <button class="btn btn-outline-secondary btn-sm" onclick="filterCards('')">Покажи всички</button>
-    
+      <div class="btn-group flex-wrap" id="filter-buttons">    
         <!-- Закуски -->
         <button class="btn btn-outline-primary btn-sm" onclick="filterCards('zakuski')">Закуски</button>
     
@@ -321,6 +317,8 @@
 
       function filterCards(filter, { silent = false } = {}) {
         currentFilter = filter;
+        const wrappers = document.querySelectorAll('#menu-list > div');
+        wrappers.forEach(w => w.classList.remove('card-hidden'));
 
         const allButtons = document.querySelectorAll('#filter-buttons button');
         allButtons.forEach(btn => btn.classList.remove('active'));
@@ -337,7 +335,6 @@
           const category = card.getAttribute('data-category')?.toLowerCase() || '';
           const drinkType = card.getAttribute('data-drink-type')?.toLowerCase() || '';
           const matches =
-            filterLower === '' ||
             name.includes(filterLower) ||
             subcat.includes(filterLower) ||
             category.includes(filterLower) ||
@@ -346,9 +343,9 @@
 
         });
       
-        if (!silent) {
-          document.getElementById('menu-list').scrollIntoView({ behavior: 'smooth' });
-        }
+
+        
+
       }
       window.filterCards = filterCards;
 
@@ -690,7 +687,7 @@
         document.getElementById('is_dessert').checked = false;
         document.querySelector('#menu-form button[type="submit"]').textContent = 'Добави ястието';
         fetchMenu();
-        // след fetchMenu();
+
         filterCards(currentFilter || '', { silent: true });
         const si = document.getElementById('search-input');
         if (si && si.value) si.dispatchEvent(new Event('input'));
