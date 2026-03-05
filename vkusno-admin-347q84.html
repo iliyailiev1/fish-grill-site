@@ -104,6 +104,33 @@
   <div class="container py-5">
     <h2 class="mb-4 text-center">Добавяне на Ястие</h2>
 
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title mb-3">Дата за обедното меню</h4>
+        <div class="row g-2 align-items-center">
+          <div class="col-sm-6">
+            <input
+              type="text"
+              id="lunch-menu-date-input"
+              class="form-control"
+              placeholder="напр. 4 Март"
+            >
+          </div>
+          <div class="col-sm-auto">
+            <button type="button" class="btn btn-outline-primary" id="save-lunch-menu-date-btn">
+              Запази датата
+            </button>
+          </div>
+          <div class="col-12 mt-2">
+            <small class="text-muted">
+              Тази стойност ще се показва под „Обедно меню“ на сайта като „Обедно меню за ...“.
+            </small>
+          </div>
+        </div>
+        <div id="lunch-menu-date-status" class="mt-2 small"></div>
+      </div>
+    </div>
+
     <form id="menu-form" class="mb-4">
       <!-- input полета, както досега -->
       <div class="mb-3">
@@ -275,7 +302,71 @@
       const sb = window._sb;
 
 
-    
+      async function loadLunchMenuDate() {
+        const input = document.getElementById('lunch-menu-date-input');
+        const status = document.getElementById('lunch-menu-date-status');
+        if (!input) return;
+
+        const { data, error } = await sb
+          .from('menu_settings')
+          .select('value')
+          .eq('key', 'lunch_menu_date')
+          .maybeSingle();
+
+        if (error) {
+          console.error('Грешка при зареждане на датата за обедното меню:', error);
+          if (status) {
+            status.innerHTML = '<span class="text-danger">Неуспешно зареждане на датата.</span>';
+          }
+          return;
+        }
+
+        if (data && data.value) {
+          input.value = data.value;
+        }
+      }
+
+      async function saveLunchMenuDate() {
+        const input = document.getElementById('lunch-menu-date-input');
+        const status = document.getElementById('lunch-menu-date-status');
+        if (!input) return;
+
+        const value = input.value.trim();
+        if (!value) {
+          if (status) {
+            status.innerHTML = '<span class="text-danger">Моля, въведете дата.</span>';
+          }
+          return;
+        }
+
+        const { error } = await sb
+          .from('menu_settings')
+          .upsert(
+            { key: 'lunch_menu_date', value },
+            { onConflict: 'key' }
+          );
+
+        if (error) {
+          console.error('Грешка при запазване на датата за обедното меню:', error);
+          if (status) {
+            status.innerHTML = '<span class="text-danger">Грешка при запазване.</span>';
+          }
+          return;
+        }
+
+        if (status) {
+          status.innerHTML = '<span class="text-success">✅ Датата е запазена успешно.</span>';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const saveBtn = document.getElementById('save-lunch-menu-date-btn');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', saveLunchMenuDate);
+        }
+        loadLunchMenuDate();
+      });
+
       function getVolumeUnitText() {
         return document.getElementById('volume-unit-toggle').checked ? 'л.' : 'мл.';
       }

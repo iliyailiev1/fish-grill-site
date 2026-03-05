@@ -43,6 +43,13 @@
       font-size: 1.2rem;
       margin-top: 5px;
     }
+    /* Датата като продължение на "Обедно меню" */
+    .menu .tab-content .tab-header h3 .lunch-menu-date-value {
+      display: block;
+      margin-top: 0.25em;
+      font-weight: 700;
+      color: #000000;
+    }
   </style>
   
 </head>
@@ -158,7 +165,10 @@
         
           <div class="tab-pane fade" id="menu-breakfast">
             <div class="tab-header text-center">
-              <h3>Обедно меню</h3>
+              <h3>
+                Обедно меню
+                <span id="lunch-menu-date" class="lunch-menu-date-value"></span>
+              </h3>
             </div>
             <div class="row gy-5" id="menu-breakfast-container" style="justify-content: center !important;"></div>
           </div>
@@ -387,6 +397,28 @@
         return;
       }
   
+      // Зареждане на датата за обедното меню
+      async function loadLunchMenuDateLabel() {
+        const dateEl = document.getElementById('lunch-menu-date');
+        if (!dateEl) return;
+
+        const { data, error } = await supabase
+          .from('menu_settings')
+          .select('value')
+          .eq('key', 'lunch_menu_date')
+          .maybeSingle();
+
+        if (error || !data || !data.value) {
+          dateEl.style.display = 'none';
+          return;
+        }
+
+        dateEl.style.display = 'block';
+        dateEl.textContent = `За ${data.value}`;
+      }
+
+      await loadLunchMenuDateLabel();
+
       // Зареждане на категории
       async function loadMenuByCategory(category, containerId) {
         const container = document.getElementById(containerId);
